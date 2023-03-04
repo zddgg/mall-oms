@@ -23,5 +23,5 @@ import '@/views/user/setting/mock';
 import '@/views/product/brand/mock';
 
 Mock.setup({
-  timeout: '100',
+  timeout: '1',
 });
