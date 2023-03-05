@@ -55,6 +55,8 @@ export default {
   'menu.product.category.frontend': '前台类目管理',
   'menu.product.property': '属性管理',
   'menu.product.property.unit': '属性单元管理',
+  'menu.product.property.group': '属性组管理',
+  'menu.product.property.sale': '销售属性管理',
 
   ...localeSettings,
   ...localeMessageBox,

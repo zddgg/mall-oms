@@ -2,7 +2,7 @@ import axios from 'axios';
 import { HttpResponse, PaginationRes } from '@/types/global';
 import {
   PropertyGroupRecord,
-  PropertyStoreRecord,
+  PropertyUnitRecord,
 } from '@/api/product/property';
 
 export interface BackendCategoryRecord {
@@ -53,12 +53,13 @@ export interface BackendCategoryDetailResp {
   level?: number;
   relatedProperty?: boolean;
   propertyGroupList: PropertyGroupRecord[];
-  propertyStoreList: PropertyStoreRecord[];
+  propertyUnitList: PropertyUnitRecord[];
   parentCategoryDetail?: BackendCategoryDetailResp[];
 }
 
 export interface BackendCategoryTreeParams {
   maxLevel: number;
+  rootHelp: boolean,
 }
 
 export function queryCategoryList(params: BackendCategorySearchParams) {
@@ -109,8 +110,8 @@ export interface BaseInfoModel {
 }
 export interface PropertyInfoModel {
   propertyGroupList: PropertyGroupRecord[];
-  propertyStoreList: PropertyStoreRecord[];
-  salePropertyList: PropertyStoreRecord[];
+  propertyUnitList: PropertyUnitRecord[];
+  salePropertyList: PropertyUnitRecord[];
   parentCategoryDetail?: BackendCategoryDetailResp[];
 }
 
