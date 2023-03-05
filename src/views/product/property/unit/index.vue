@@ -49,7 +49,7 @@
               @click="
                 () =>
                   router.push({
-                    name: 'PropertyStoreCreate',
+                    name: 'PropertyUnitCreate',
                     query: {
                       actionType: '0',
                     },
@@ -147,15 +147,10 @@
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
-  const generateFormModel = () => {
-    return {
-      propertyKeyName: '',
-    };
-  };
   const { loading, setLoading } = useLoading(false);
 
   const renderData = ref<PropertyUnitRecord[] | undefined>([]);
-  const searchFormModel = ref(generateFormModel());
+  const searchFormModel = ref<PropertyUnitRecord>({} as PropertyUnitRecord);
   const formShowTypeOptions = ref<EnumResp[]>([]);
 
   const size = ref<SizeProps>('medium');
@@ -248,7 +243,7 @@
   };
 
   const reset = () => {
-    searchFormModel.value = generateFormModel();
+    searchFormModel.value = {} as PropertyUnitRecord;
   };
 
   const init = async () => {

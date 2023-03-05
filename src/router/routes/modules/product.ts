@@ -96,6 +96,26 @@ const LIST: AppRouteRecordRaw = {
           },
         },
         {
+          path: 'backend/create',
+          name: 'BackendCategoryCreate',
+          component: () => import('@/views/product/category/backend/components/backendCategoryDetail.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true,
+          },
+        },
+        {
+          path: 'backend/:categoryId',
+          name: 'BackendCategoryDetail',
+          component: () => import('@/views/product/category/backend/components/backendCategoryDetail.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true,
+          },
+        },
+        {
           path: 'frontend',
           name: 'FrontendCategory',
           component: () =>
@@ -148,6 +168,78 @@ const LIST: AppRouteRecordRaw = {
             import(
               '@/views/product/property/unit/components/propertyUnitDetail.vue'
             ),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true,
+          },
+        },
+        {
+          path: 'group',
+          name: 'PropertyGroup',
+          component: () => import('@/views/product/property/group/index.vue'),
+          meta: {
+            locale: 'menu.product.property.group',
+            requiresAuth: true,
+            roles: ['*'],
+          },
+        },
+        {
+          path: 'group/create',
+          name: 'PropertyGroupCreate',
+          component: () =>
+              import(
+                  '@/views/product/property/group/components/propertyGroupDetail.vue'
+                  ),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true,
+          },
+        },
+        {
+          path: 'group/:propertyGroupId',
+          name: 'PropertyGroupDetail',
+          component: () =>
+              import(
+                  '@/views/product/property/group/components/propertyGroupDetail.vue'
+                  ),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true,
+          },
+        },
+        {
+          path: 'sale',
+          name: 'PropertySale',
+          component: () => import('@/views/product/property/sale/index.vue'),
+          meta: {
+            locale: 'menu.product.property.sale',
+            requiresAuth: true,
+            roles: ['*'],
+          },
+        },
+        {
+          path: 'sale/create',
+          name: 'PropertySaleCreate',
+          component: () =>
+              import(
+                  '@/views/product/property/sale/components/propertySaleDetail.vue'
+                  ),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true,
+          },
+        },
+        {
+          path: 'sale/:keyId',
+          name: 'PropertySaleDetail',
+          component: () =>
+              import(
+                  '@/views/product/property/sale/components/propertySaleDetail.vue'
+                  ),
           meta: {
             requiresAuth: true,
             roles: ['*'],

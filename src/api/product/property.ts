@@ -54,57 +54,109 @@ export function editPropertyUnit(params: PropertyUnitRecord) {
 export function deleteByUnitKeyId(params: PropertyUnitRecord) {
   return axios.post<HttpResponse>('/api/property/unit/delete', params);
 }
-//
-// export interface PropertyGroupRecord {
-//   id?: string;
-//   creator?: string;
-//   created?: string;
-//   updater?: string;
-//   updated?: string;
-//   propertyGroupId?: string;
-//   propertyGroupName?: string;
-//   status?: string;
-// }
-//
-// export interface PropertyGroupSearchParam extends Partial<PropertyGroupRecord> {
-//   current: number;
-//   pageSize: number;
-// }
-//
-// export interface PropertyGroupCreate {
-//   propertyGroupId?: string;
-//   propertyGroupName: string;
-//   propertyStoreList: PropertyStoreRecord[];
-// }
-//
-// export function queryPropertyGroupList(params: PropertyGroupSearchParam) {
-//   return axios.post<HttpResponse<PaginationRes<PropertyGroupRecord>>>(
-//     '/api/property/group/list',
-//     params
-//   );
-// }
-//
-// export function createPropertyGroup(params: PropertyGroupCreate) {
-//   return axios.post<HttpResponse>('/api/property/group/create', params);
-// }
-//
-// export function queryPropertyGroupDetail(params: PropertyGroupRecord) {
-//   return axios.post<HttpResponse<PropertyGroupCreate>>(
-//     '/api/property/group/detail',
-//     params
-//   );
-// }
-//
-// export function editPropertyGroup(params: PropertyGroupCreate) {
-//   return axios.post<HttpResponse>('/api/property/group/edit', params);
-// }
-//
-// export function deleteByPropertyGroupId(params: PropertyGroupRecord) {
-//   return axios.post<HttpResponse>('/api/property/group/delete', params);
-// }
-//
-// export interface PropertyFormData {
-//   type: string;
-//   valueOptions?: SelectOptionData[];
-//   desc?: string;
-// }
+
+export interface PropertyGroupRecord {
+  id?: string;
+  creator?: string;
+  created?: string;
+  updater?: string;
+  updated?: string;
+  propertyGroupId?: string;
+  propertyGroupName?: string;
+  status?: string;
+  propertyUnitKeys?: PropertyUnitRecord[]
+}
+
+export interface PropertyGroupSearchParam extends Partial<PropertyGroupRecord> {
+  current: number;
+  pageSize: number;
+}
+
+export interface PropertyGroupCreate {
+  propertyGroupId?: string;
+  propertyGroupName: string;
+  propertyUnitKeys: PropertyUnitRecord[];
+}
+
+export function queryPropertyGroupList(params: PropertyGroupSearchParam) {
+  return axios.post<HttpResponse<PaginationRes<PropertyGroupRecord>>>(
+    '/api/property/group/list',
+    params
+  );
+}
+
+export function createPropertyGroup(params: PropertyGroupCreate) {
+  return axios.post<HttpResponse>('/api/property/group/create', params);
+}
+
+export function queryPropertyGroupDetail(params: PropertyGroupRecord) {
+  return axios.post<HttpResponse<PropertyGroupCreate>>(
+    '/api/property/group/detail',
+    params
+  );
+}
+
+export function editPropertyGroup(params: PropertyGroupCreate) {
+  return axios.post<HttpResponse>('/api/property/group/edit', params);
+}
+
+export function deleteByPropertyGroupId(params: PropertyGroupRecord) {
+  return axios.post<HttpResponse>('/api/property/group/delete', params);
+}
+
+export interface PropertySaleValue {
+  id?: string;
+  creator?: string;
+  created?: string;
+  updater?: string;
+  updated?: string;
+  saleKeyId?: string;
+  propertyValue?: string;
+  propertyOrder?: number;
+  status?: string;
+  confirmed?:boolean;
+}
+
+export interface PropertySaleRecord {
+  id?: string;
+  creator?: string;
+  created?: string;
+  updater?: string;
+  updated?: string;
+  keyId?: string;
+  keyName?: string;
+  status?: string;
+  propertySaleValues?: PropertySaleValue[]
+}
+
+
+export interface PropertySaleSearchParam extends Partial<PropertySaleRecord> {
+  current: number;
+  pageSize: number;
+}
+
+export function queryPropertySaleList(params: PropertySaleSearchParam) {
+  return axios.post<HttpResponse<PaginationRes<PropertySaleRecord>>>(
+      '/api/property/sale/list',
+      params
+  );
+}
+
+export function createPropertySale(params: PropertySaleRecord) {
+  return axios.post<HttpResponse>('/api/property/sale/create', params);
+}
+
+export function queryPropertySaleDetail(params: PropertySaleRecord) {
+  return axios.post<HttpResponse<PropertySaleRecord>>(
+      '/api/property/sale/detail',
+      params
+  );
+}
+
+export function editPropertySale(params: PropertySaleRecord) {
+  return axios.post<HttpResponse>('/api/property/sale/edit', params);
+}
+
+export function deleteSaleByKeyId(params: PropertySaleRecord) {
+  return axios.post<HttpResponse>('/api/property/sale/delete', params);
+}

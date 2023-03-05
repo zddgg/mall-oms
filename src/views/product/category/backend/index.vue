@@ -173,7 +173,7 @@
               size="small"
               @click="
                 router.push({
-                  name: 'CategoryDetail',
+                  name: 'BackendCategoryDetail',
                   params: {
                     categoryId: record.categoryId,
                   },
@@ -189,7 +189,7 @@
               size="small"
               @click="
                 router.push({
-                  name: 'CategoryDetail',
+                  name: 'BackendCategoryDetail',
                   params: {
                     categoryId: record.categoryId,
                   },
@@ -216,7 +216,7 @@
     BackendCategoryTree,
     queryBackendCategoryTree,
     BackendCategorySearchParams,
-    queryCategoryList,
+    queryCategoryList, BackendCategoryTreeParams,
   } from '@/api/product/category';
   import { Pagination } from '@/types/global';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
@@ -335,7 +335,7 @@
 
   const backendCategoryOptions = ref<BackendCategoryTree[]>([]);
   const getBackendCategoryTree = async () => {
-    const { data } = await queryBackendCategoryTree({ maxLevel: 3 });
+    const { data } = await queryBackendCategoryTree({ maxLevel: 3 } as BackendCategoryTreeParams);
     backendCategoryOptions.value = data;
   };
 
@@ -368,6 +368,10 @@
   const routeToBackendCategoryCreate = () => {
     router.push({
       name: 'BackendCategoryCreate',
+      query: {
+        // 0-创建， 1-查看，2-编辑
+        actionType: '0',
+      },
     });
   };
 
