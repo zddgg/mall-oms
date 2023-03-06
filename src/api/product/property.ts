@@ -90,7 +90,7 @@ export function createPropertyGroup(params: PropertyGroupCreate) {
 }
 
 export function queryPropertyGroupDetail(params: PropertyGroupRecord) {
-  return axios.post<HttpResponse<PropertyGroupCreate>>(
+  return axios.post<HttpResponse<PropertyGroupRecord>>(
     '/api/property/group/detail',
     params
   );
