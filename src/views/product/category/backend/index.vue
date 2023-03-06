@@ -154,7 +154,7 @@
         </template>
         <template #propertyCount="{ record }">
           <span>{{
-            `属性组: ${record.groupCount} 属性: ${record.storeCount}`
+            `属性组: ${record.groupCount} 属性: ${record.storeCount} 销售属性: ${record.saleCount}`
           }}</span>
         </template>
         <template #status="{ record }">

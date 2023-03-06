@@ -146,6 +146,7 @@
   const router = useRouter();
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
+  const size = ref<SizeProps>('medium');
 
   const { loading, setLoading } = useLoading(false);
 
@@ -153,7 +154,6 @@
   const searchFormModel = ref<PropertyUnitRecord>({} as PropertyUnitRecord);
   const formShowTypeOptions = ref<EnumResp[]>([]);
 
-  const size = ref<SizeProps>('medium');
 
   const basePagination: Pagination = {
     current: 1,

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { HttpResponse, PaginationRes } from '@/types/global';
 import {
-  PropertyGroupRecord,
+  PropertyGroupRecord, PropertySaleRecord,
   PropertyUnitRecord,
 } from '@/api/product/property';
 
@@ -18,6 +18,7 @@ export interface BackendCategoryRecord {
   status?: string;
   groupCount?: number;
   storeCount?: number;
+  saleCount?: number;
 }
 
 export interface BackendCategoryTree {
@@ -46,15 +47,31 @@ export interface BackendCategoryDetailReq {
   categoryName?: string;
 }
 
-export interface BackendCategoryDetailResp {
+export interface BackendCategoryDetail {
   categoryId?: string;
   categoryName: string;
   parentId?: string;
   level?: number;
   relatedProperty?: boolean;
-  propertyGroupList: PropertyGroupRecord[];
-  propertyUnitList: PropertyUnitRecord[];
-  parentCategoryDetail?: BackendCategoryDetailResp[];
+  propertyUnitKeys: PropertyUnitRecord[];
+  propertyGroups: PropertyGroupRecord[];
+  propertySaleKeys: PropertySaleRecord[];
+}
+
+export interface BackendCategoryUpdateReq {
+  categoryId?: string;
+  categoryName?: string;
+  parentId?: string;
+  level?: number;
+  relatedProperty?: boolean;
+  propertyUnitIds?: string[] | undefined;
+  propertyGroupIds?: string[] | undefined;
+  propertySaleIds?: string[] | undefined;
+}
+
+export interface BackendCategoryDetailResp {
+  detail?: BackendCategoryDetailResp;
+  parentDetails?: BackendCategoryDetailResp[];
 }
 
 export interface BackendCategoryTreeParams {
@@ -76,25 +93,32 @@ export function queryBackendCategoryTree(params: BackendCategoryTreeParams) {
   );
 }
 
-export function createBackendCategory(params: BackendCategoryDetailResp) {
+export function createBackendCategory(params: BackendCategoryUpdateReq) {
   return axios.post<HttpResponse>('/api/backendCategory/create', params);
 }
 
-export function updateBackendCategory(params: BackendCategoryDetailResp) {
+export function updateBackendCategory(params: BackendCategoryUpdateReq) {
   return axios.post<HttpResponse>('/api/backendCategory/update', params);
 }
 
 export function queryBackendCategoryDetail(params: BackendCategoryDetailReq) {
-  return axios.post<HttpResponse<BackendCategoryDetailResp>>(
+  return axios.post<HttpResponse<BackendCategoryDetail>>(
     '/api/backendCategory/detail',
     params
   );
 }
 
-export function queryAllParentCategoryDetail(params: BackendCategoryDetailReq) {
-  return axios.post<HttpResponse<BackendCategoryDetailResp[]>>(
-    '/api/backendCategory/allParentDetail',
+export function queryParentCategoryDetail(params: BackendCategoryDetailReq) {
+  return axios.post<HttpResponse<BackendCategoryDetail[]>>(
+    '/api/backendCategory/parentDetail',
     params
+  );
+}
+
+export function queryParentAndSelfDetail(params: BackendCategoryDetailReq) {
+  return axios.post<HttpResponse<BackendCategoryDetail[]>>(
+      '/api/backendCategory/parentAndSelfDetail',
+      params
   );
 }
 
