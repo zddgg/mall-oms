@@ -57,6 +57,10 @@ export default {
   'menu.product.property.unit': '属性单元管理',
   'menu.product.property.group': '属性组管理',
   'menu.product.property.sale': '销售属性管理',
+  'menu.merchant': '商户',
+  'menu.merchant.list': '商户管理',
+  'menu.store': '店铺',
+  'menu.store.list': '店铺管理',
 
   ...localeSettings,
   ...localeMessageBox,

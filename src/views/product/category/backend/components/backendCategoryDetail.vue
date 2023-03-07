@@ -485,9 +485,9 @@ const handleSubmit = async () => {
       params.categoryId = categoryId as string;
     }
 
-    params.propertyUnitIds = propertyUnitList.value.map((item) => item.unitKeyId);
-    params.propertyGroupIds = propertyGroupList.value.map((item) => item.propertyGroupId);
-    params.propertySaleIds = propertySaleList.value.map((item) => item.keyId);
+    params.propertyUnitIds = propertyUnitList.value.map((item) => item.unitKeyId || '');
+    params.propertyGroupIds = propertyGroupList.value.map((item) => item.propertyGroupId || '');
+    params.propertySaleIds = propertySaleList.value.map((item) => item.keyId || '');
 
     if (action.value === '0') {
       console.log(action)

@@ -64,9 +64,9 @@ export interface BackendCategoryUpdateReq {
   parentId?: string;
   level?: number;
   relatedProperty?: boolean;
-  propertyUnitIds?: string[] | undefined;
-  propertyGroupIds?: string[] | undefined;
-  propertySaleIds?: string[] | undefined;
+  propertyUnitIds?: string[];
+  propertyGroupIds?: string[];
+  propertySaleIds?: string[];
 }
 
 export interface BackendCategoryDetailResp {
