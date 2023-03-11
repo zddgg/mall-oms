@@ -56,25 +56,25 @@
             </a-row>
           </a-form>
         </a-col>
-        <a-divider style="height: 84px" direction="vertical" />
+        <a-divider style="height: 84px" direction="vertical"/>
         <a-col :flex="'86px'" style="text-align: right">
           <a-space direction="vertical" :size="18">
             <a-button type="primary" @click="search">
               <template #icon>
-                <icon-search />
+                <icon-search/>
               </template>
               查询
             </a-button>
             <a-button @click="reset">
               <template #icon>
-                <icon-refresh />
+                <icon-refresh/>
               </template>
               重置
             </a-button>
           </a-space>
         </a-col>
       </a-row>
-      <a-divider style="margin-top: 0" />
+      <a-divider style="margin-top: 0"/>
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
@@ -90,7 +90,7 @@
               "
             >
               <template #icon>
-                <icon-plus />
+                <icon-plus/>
               </template>
               新增
             </a-button>
@@ -108,19 +108,43 @@
           @page-change="onPageChange"
       >
         <template #operations="{ record }">
-          <a-button
-              v-permission="['admin']"
-              type="text"
-              size="small"
-              @click="
-              () =>
-                router.push({
-                  path: `/product/product-management/detail/${record.skuCode}`,
-                })
-            "
-          >
-            查看
-          </a-button>
+          <a-space>
+            <a-button
+                size="small"
+                @click="
+              router.push({
+                  name: 'SpuDetail',
+                  params: {
+                    spuId: record.spuId,
+                  },
+                  query: {
+                    actionType: '1',
+                  },
+                })"
+            >
+              查看
+            </a-button>
+            <a-button
+                size="small"
+                @click="router.push({
+                          name: 'SpuDetail',
+                          params: {
+                            spuId: record.spuId,
+                          },
+                          query: {
+                            actionType: '2',
+                          },
+                })"
+            >
+              编辑
+            </a-button>
+            <a-button
+                size="small"
+                @click="deleteSpu(record)"
+            >
+              删除
+            </a-button>
+          </a-space>
         </template>
       </a-table>
     </a-card>
@@ -128,17 +152,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, reactive } from 'vue';
+import {computed, reactive, ref} from 'vue';
 import useLoading from '@/hooks/loading';
-import {
-  queryProductList,
-  ProductRecord,
-  ProductParams,
-} from '@/api/product/goods';
-import { Pagination } from '@/types/global';
-import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
-import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
-import { useRouter } from 'vue-router';
+import {Pagination} from '@/types/global';
+import type {SelectOptionData} from '@arco-design/web-vue/es/select/interface';
+import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
+import {TableData} from "@arco-design/web-vue/es/table/interface";
+import {useRouter} from 'vue-router';
+import {deleteBySpuId, querySpuMetaList, SpuMetaParams, SpuMetaRecord} from "@/api/product/goods";
+import {Modal} from "@arco-design/web-vue";
+import {deleteByPropertyGroupId} from "@/api/product/property";
+import {deleteByStoreNo} from "@/api/store/store";
 
 const router = useRouter();
 
@@ -154,10 +178,10 @@ const generateFormModel = () => {
     status: '',
   };
 };
-const { loading, setLoading } = useLoading(false);
+const {loading, setLoading} = useLoading(false);
 
-const renderData = ref<ProductRecord[] | undefined>([]);
-const searchFormModel = ref(generateFormModel());
+const renderData = ref<SpuMetaRecord[] | undefined>([]);
+const searchFormModel = ref<SpuMetaRecord>({} as SpuMetaRecord);
 
 const size = ref<SizeProps>('medium');
 
@@ -171,19 +195,23 @@ const pagination = reactive({
 const columns = computed<TableColumnData[]>(() => [
   {
     title: 'SPU编号',
-    dataIndex: 'spuNo',
+    dataIndex: 'spuId',
   },
   {
     title: 'SPU名称',
     dataIndex: 'spuName',
   },
   {
+    title: '店铺',
+    dataIndex: 'storeId',
+  },
+  {
     title: '品牌',
-    dataIndex: 'brandNo',
+    dataIndex: 'brandId',
   },
   {
     title: '类目',
-    dataIndex: 'categoryNo',
+    dataIndex: 'categoryId',
   },
   {
     title: '状态',
@@ -226,11 +254,11 @@ const statusOptions = computed<SelectOptionData[]>(() => [
   },
 ]);
 const fetchData = async (
-    params: ProductParams = { current: 1, pageSize: 20 }
+    params: SpuMetaParams = {current: 1, pageSize: 20}
 ) => {
   setLoading(true);
   try {
-    const { data } = await queryProductList(params);
+    const {data} = await querySpuMetaList(params);
     renderData.value = data.records;
     pagination.current = params.current;
     pagination.total = data.total;
@@ -245,15 +273,31 @@ const search = () => {
   fetchData({
     ...basePagination,
     ...searchFormModel.value,
-  } as unknown as ProductParams);
+  } as unknown as SpuMetaParams);
 };
 const onPageChange = (current: number) => {
-  fetchData({ ...basePagination, current } as unknown as ProductParams);
+  fetchData({...basePagination, current} as unknown as SpuMetaParams);
+};
+
+const deleteSpu = (record: TableData) => {
+  Modal.confirm({
+    title: `确认删除 [${record.spuName}]？`,
+    content: '确认删除？？？',
+    onOk: async () => {
+      const params = {
+        spuId: record.spuId,
+      } as SpuMetaRecord;
+      await deleteBySpuId(params);
+      await fetchData();
+    },
+  });
 };
 
 const reset = () => {
-  searchFormModel.value = generateFormModel();
+  searchFormModel.value = {} as SpuMetaRecord;
 };
+
+search();
 </script>
 
 <style scoped lang="less">

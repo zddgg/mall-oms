@@ -1,29 +1,54 @@
 import axios from 'axios';
-import qs from 'query-string';
 import {HttpResponse, PaginationRes} from '@/types/global';
 
-export interface ProductRecord {
-  id: string;
-  skuCode: string;
-  spuCode: string;
-  skuName: string;
-  brandCode: string;
-  categoryCode: string;
-  retailPrice: string;
-  quantity: string;
-  status: string;
+export interface SpuMetaRecord {
+    id: string;
+    spuId: string;
+    spuName: string;
+    storeId: string;
+    brandId: string;
+    categoryId: string;
+    statusFlag: string;
 }
 
-export interface ProductParams extends Partial<ProductRecord> {
-  current: number;
-  pageSize: number;
+export interface SpuAttrSaleMap {
+    spuId: string;
+    attrId: string;
+    attrName: string;
 }
 
-export function queryProductList(params: ProductParams) {
-  return axios.post<HttpResponse<PaginationRes<ProductRecord>>>('/api/product/spu/list', {
-    ...params,
-    paramsSerializer: (obj: PaginationRes<ProductRecord>) => {
-      return qs.stringify(obj);
-    },
-  });
+export interface SpuDetail {
+    spuMeta: SpuMetaRecord;
+    spuAttrSaleMaps: SpuAttrSaleMap[];
+}
+
+export interface SpuUpdate {
+    spuMeta: SpuMetaRecord;
+    deleteAttrIds: string[];
+    addAttrNames: string[];
+}
+
+export interface SpuMetaParams extends Partial<SpuMetaRecord> {
+    current: number;
+    pageSize: number;
+}
+
+export function querySpuMetaList(params: SpuMetaParams) {
+    return axios.post<HttpResponse<PaginationRes<SpuMetaRecord>>>('/api/product/spu/list', params);
+}
+
+export function querySpuDetail(params: SpuMetaRecord) {
+    return axios.post<HttpResponse<SpuDetail>>('/api/product/spu/detail', params);
+}
+
+export function createSpu(params: SpuUpdate) {
+    return axios.post<HttpResponse>('/api/product/spu/create', params);
+}
+
+export function updateBySpuId(params: SpuUpdate) {
+    return axios.post<HttpResponse>('/api/product/spu/update', params);
+}
+
+export function deleteBySpuId(params: SpuMetaRecord) {
+    return axios.post<HttpResponse>('/api/product/spu/delete', params);
 }

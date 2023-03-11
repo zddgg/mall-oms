@@ -124,8 +124,10 @@
               </div>
             </div>
           </template>
-          <a-table :columns="propertyUnitColumns"
-                   :data="propertyUnitList"
+          <a-table
+              v-if="propertyUnitList && propertyUnitList.length !== 0"
+              :columns="propertyUnitColumns"
+              :data="propertyUnitList"
           >
             <template #id="{ record }">
               <div style="display: flex">
@@ -142,7 +144,7 @@
                 <a-button
                     v-if="!readonly"
                     type="primary" status="danger"
-                          @click="propertyUnitList.splice(rowIndex, 1)"
+                    @click="propertyUnitList.splice(rowIndex, 1)"
                 >
                   删除
                 </a-button>
@@ -166,8 +168,10 @@
               </div>
             </div>
           </template>
-          <a-table :columns="propertyGroupColumns"
-                   :data="propertyGroupList"
+          <a-table
+              v-if="propertyGroupList && propertyGroupList.length !== 0"
+              :columns="propertyGroupColumns"
+              :data="propertyGroupList"
           >
             <template #id="{ record }">
               <div style="display: flex">
@@ -207,7 +211,7 @@
                 <a-button
                     v-if="!readonly"
                     type="primary" status="danger"
-                          @click="propertyGroupList.splice(rowIndex, 1)"
+                    @click="propertyGroupList.splice(rowIndex, 1)"
                 >删除
                 </a-button>
               </a-space>
@@ -230,8 +234,10 @@
               </div>
             </div>
           </template>
-          <a-table :columns="propertySaleColumns"
-                   :data="propertySaleList"
+          <a-table
+              v-if="propertySaleList && propertySaleList.length !== 0"
+              :columns="propertySaleColumns"
+              :data="propertySaleList"
           >
             <template #id="{ record }">
               <div style="display: flex">
@@ -328,7 +334,8 @@ import {
   PropertyGroupRecord,
   PropertySaleRecord,
   PropertyUnitRecord,
-  queryPropertyGroupDetail, queryPropertySaleDetail,
+  queryPropertyGroupDetail,
+  queryPropertySaleDetail,
   queryPropertyUnitDetail
 } from "@/api/product/property";
 import PropertyUnitTable from "@/views/product/property/components/propertyUnitTable.vue";
