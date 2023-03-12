@@ -101,6 +101,13 @@
                     <a-table :columns="propertySaleColumns"
                              :data="item.propertySaleKeys"
                     >
+                      <template #propertySaleValues="{record}">
+                        <a-space>
+                          <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+                            {{ item.valueName }}
+                          </a-tag>
+                        </a-space>
+                      </template>
                     </a-table>
                   </a-tab-pane>
                 </a-tabs>
@@ -124,8 +131,10 @@
               </div>
             </div>
           </template>
-          <a-table :columns="propertyUnitColumns"
-                   :data="propertyUnitList"
+          <a-table
+              v-if="propertyUnitList && propertyUnitList.length !== 0"
+              :columns="propertyUnitColumns"
+              :data="propertyUnitList"
           >
             <template #id="{ record }">
               <div style="display: flex">
@@ -142,7 +151,7 @@
                 <a-button
                     v-if="!readonly"
                     type="primary" status="danger"
-                          @click="propertyUnitList.splice(rowIndex, 1)"
+                    @click="propertyUnitList.splice(rowIndex, 1)"
                 >
                   删除
                 </a-button>
@@ -166,8 +175,10 @@
               </div>
             </div>
           </template>
-          <a-table :columns="propertyGroupColumns"
-                   :data="propertyGroupList"
+          <a-table
+              v-if="propertyGroupList && propertyGroupList.length !== 0"
+              :columns="propertyGroupColumns"
+              :data="propertyGroupList"
           >
             <template #id="{ record }">
               <div style="display: flex">
@@ -207,7 +218,7 @@
                 <a-button
                     v-if="!readonly"
                     type="primary" status="danger"
-                          @click="propertyGroupList.splice(rowIndex, 1)"
+                    @click="propertyGroupList.splice(rowIndex, 1)"
                 >删除
                 </a-button>
               </a-space>
@@ -230,8 +241,10 @@
               </div>
             </div>
           </template>
-          <a-table :columns="propertySaleColumns"
-                   :data="propertySaleList"
+          <a-table
+              v-if="propertySaleList && propertySaleList.length !== 0"
+              :columns="propertySaleColumns"
+              :data="propertySaleList"
           >
             <template #id="{ record }">
               <div style="display: flex">
@@ -242,6 +255,13 @@
                   <a-tag color="#165dff">新添加</a-tag>
                 </div>
               </div>
+            </template>
+            <template #propertySaleValues="{record}">
+              <a-space>
+                <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+                  {{ item.valueName }}
+                </a-tag>
+              </a-space>
             </template>
             <template #operations="{ rowIndex }">
               <a-space>
@@ -305,6 +325,7 @@
 import {ref} from 'vue';
 import {FormInstance} from '@arco-design/web-vue/es/form';
 import {
+  addAttrSale,
   BackendCategoryDetail,
   BackendCategoryDetailReq,
   BackendCategoryTree,
@@ -328,7 +349,7 @@ import {
   PropertyGroupRecord,
   PropertySaleRecord,
   PropertyUnitRecord,
-  queryPropertyGroupDetail, queryPropertySaleDetail,
+  queryPropertyGroupDetail,
   queryPropertyUnitDetail
 } from "@/api/product/property";
 import PropertyUnitTable from "@/views/product/property/components/propertyUnitTable.vue";
@@ -434,12 +455,13 @@ const propertySaleModalOk = async () => {
     if (find) {
       Message.warning('属性已添加！');
     } else {
-      const params: PropertySaleRecord = {
-        keyId: keyIds[0] as string,
+      const params = {
+        categoryId: categoryDetail.value.categoryId as string,
+        attrId: keyIds[0] as string,
       };
-      const {data} = await queryPropertySaleDetail(params);
-      console.log(data)
-      propertySaleList.value.push(data);
+      const {msg} = await addAttrSale(params);
+      Message.info(msg);
+      await init();
     }
   }
   modalCancel();
@@ -485,9 +507,9 @@ const handleSubmit = async () => {
       params.categoryId = categoryId as string;
     }
 
-    params.propertyUnitIds = propertyUnitList.value.map((item) => item.unitKeyId);
-    params.propertyGroupIds = propertyGroupList.value.map((item) => item.propertyGroupId);
-    params.propertySaleIds = propertySaleList.value.map((item) => item.keyId);
+    params.propertyUnitIds = propertyUnitList.value.map((item) => item.unitKeyId || '');
+    params.propertyGroupIds = propertyGroupList.value.map((item) => item.propertyGroupId || '');
+    params.propertySaleIds = propertySaleList.value.map((item) => item.keyId || '');
 
     if (action.value === '0') {
       console.log(action)

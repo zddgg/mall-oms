@@ -72,14 +72,7 @@ export const propertySaleColumns = [
     {
         title: '属性值',
         dataIndex: 'propertySaleValues',
-        render: (data: any) => {
-            if (data.record.propertySaleValues) {
-                return data.record.propertySaleValues
-                    .map((item: { propertyValue: string }) => item.propertyValue)
-                    .join(', ');
-            }
-            return '';
-        },
+        slotName: 'propertySaleValues'
     },
     {
         title: '状态',

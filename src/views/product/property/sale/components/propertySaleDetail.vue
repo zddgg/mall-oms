@@ -1,126 +1,84 @@
 <template>
   <div class="container">
-    <a-card class="general-card">
-      <a-form
-          ref="formRef"
-          :model="propertySaleData"
-          :label-col-props="{ span: 6 }"
-          :wrapper-col-props="{ span: 18 }"
-          style="width: 800px"
-          @submit-success="handleSubmit"
-      >
-        <a-space direction="vertical" :size="16">
-          <a-card class="general-card" title="基础信息">
-            <a-form-item
-                field="keyName"
-                label="销售属性名称"
-                show-colon
-                :rules="[{ required: !readonly, message: 'name is required' }]"
-            >
-              <a-input
-                  v-if="!readonly"
-                  v-model="propertySaleData.keyName"
-                  placeholder="请输入类目名称"
-              />
-              <span v-else>{{ propertySaleData.keyName }}</span>
-            </a-form-item>
-            <a-form-item
-                label="属性可选值"
-                :help="readonly ? null : '可拖拽调整属性值顺序'"
-                show-colon
-            >
-              <a-table
-                  :columns="showColumns"
-                  :data="propertySaleData.propertySaleValues"
-                  size="medium"
-                  style="width: 100%"
-                  :pagination="false"
-                  :draggable="readonly ? null : { type: 'handle', width: 40 }"
-                  @change="handleChange"
-              >
-                <template #index="{ rowIndex }">
-                  <span>{{ rowIndex }}</span>
-                </template>
-                <template #desc="{ rowIndex }">
-                  <span>{{ rowIndex === 0 ? '选中' : '未选中' }}</span>
-                </template>
-                <template #propertyValue="{ record }">
-                  <a-input
-                      v-if="!readonly"
-                      v-model="record.propertyValue"
-                      :disabled="record.confirmed"
-                      @change="
-                      (value) => {
-                        record.propertyValue = value.trim();
-                      }
-                    "
-                  />
-                  <span v-else>{{ record.propertyValue }}</span>
-                </template>
-                <template #operations="{ record, rowIndex }">
-                  <a-space>
-                    <a-button
-                        size="small"
-                        :type="record.confirmed ? 'secondary' : 'primary'"
-                        @click="
-                        () => {
-                          if (!record.confirmed && !record.propertyValue) {
-                            Modal.error({
-                              title: '新增属性值不能为空！',
-                              content: null,
-                            });
-                            return;
-                          }
-                          record.confirmed = !record.confirmed;
-                        }
-                      "
-                    >
-                      {{ record.confirmed ? '编辑' : '确认' }}
-                    </a-button>
-                    <a-button
-                        size="small"
-                        @click="
-                        () => {
-                          propertySaleData.propertySaleValues?.splice(
-                            rowIndex,
-                            1
-                          );
-                        }
-                      "
-                    >
-                      删除
-                    </a-button>
-                  </a-space>
-                </template>
-              </a-table>
-            </a-form-item>
-            <a-form-item
+    <a-space direction="vertical">
+      <a-card class="general-card" title="基础信息">
+        <a-form
+            ref="formRef"
+            :model="propertySaleKeyData"
+            :label-col-props="{ span: 6 }"
+            :wrapper-col-props="{ span: 18 }"
+            style="width: 800px"
+            @submit-success="handleSubmit"
+        >
+          <a-form-item
+              field="keyName"
+              label="销售属性名称"
+              show-colon
+              :rules="[{ required: !readonly, message: 'name is required' }]"
+          >
+            <a-input
                 v-if="!readonly"
+                v-model="propertySaleKeyData.keyName"
+                placeholder="请输入类目名称"
+                style="width: 80%"
+            />
+            <span v-else>{{ propertySaleKeyData.keyName }}</span>
+          </a-form-item>
+          <div class="actions">
+            <a-space>
+              <a-button type="primary" html-type="submit" :loading="loading">
+                提交
+              </a-button>
+              <a-button @click="cancel">取消</a-button>
+            </a-space>
+          </div>
+        </a-form>
+      </a-card>
+      <a-card class="general-card" title="属性值">
+        <a-table
+            :columns="showColumns"
+            :data="propertySaleValueData"
+            size="medium"
+            :pagination="false"
+        >
+          <template #index="{ rowIndex }">
+            <span>{{ rowIndex }}</span>
+          </template>
+          <template #desc="{ rowIndex }">
+            <span>{{ rowIndex === 0 ? '选中' : '未选中' }}</span>
+          </template>
+          <template #operations="{ record}">
+            <a-space>
+              <a-button
+                  size="small"
+                  @click="deleteAttrValue(record)"
+              >
+                删除
+              </a-button>
+            </a-space>
+          </template>
+        </a-table>
+        <div style="margin-top: 20px">
+          <div v-if="showAddAttrBtn">
+            <a-button
+                type="primary"
+                @click="showAddAttrBtn = false"
             >
-              <a-space>
-                <a-button type="primary" @click="handleAdd">
-                  添加属性值
-                </a-button>
-              </a-space>
-            </a-form-item>
-          </a-card>
-          <a-card v-if="showPreview" class="general-card" title="预览">
-            <a-form-item :label="propertySaleData.keyName" show-colon>
-              <a-input>
-              </a-input>
-            </a-form-item>
-          </a-card>
-        </a-space>
-        <div class="actions" v-if="!readonly">
-          <a-space>
-            <a-button type="primary" html-type="submit" :loading="loading">
-              提交
+              添加属性值
             </a-button>
-            <a-button @click="reset"> 重置</a-button>
-          </a-space>
+          </div>
+          <div v-else>
+            <a-form-item label="添加属性值" show-colon>
+              <a-input style="width: 40%" v-model="newAttrName"/>
+              <a-button type="primary"
+                        @click="addAttrValue"
+              >确认添加
+              </a-button>
+            </a-form-item>
+          </div>
         </div>
-      </a-form>
-    </a-card>
+      </a-card>
+    </a-space>
   </div>
 </template>
 
@@ -131,42 +89,32 @@ import {FormInstance} from '@arco-design/web-vue/es/form';
 import {Message, Modal} from '@arco-design/web-vue';
 import {useRoute, useRouter} from 'vue-router';
 import {
-  createPropertySale,
-  editPropertySale,
+  addValue,
+  deleteValue,
+  editKey,
+  PropertySaleKey,
   PropertySaleRecord,
   PropertySaleValue,
-  queryPropertySaleDetail
+  queryKeyDetail,
+  queryValueList
 } from '@/api/product/property';
-import {TableColumnData} from '@arco-design/web-vue/es/table/interface';
+import {TableColumnData, TableData} from '@arco-design/web-vue/es/table/interface';
 import cloneDeep from 'lodash/cloneDeep';
 
 type Column = TableColumnData & { hiddenInTable?: false };
 
 const formRef = ref<FormInstance>();
 const showColumns = ref<Column[]>([]);
-const showPreview = ref<boolean>(false);
 const router = useRouter();
 const route = useRoute();
 
 // 0-create, 1-view, 2-edit, 3-audit
 const action = ref<string | string[]>('');
 const readonly = ref<boolean>(true);
-
-const propertySaleData = ref<PropertySaleRecord>({
-  propertySaleValues: []
-} as PropertySaleRecord);
-
-const handleAdd = () => {
-  propertySaleData.value.propertySaleValues?.push({
-    propertyValue: '',
-    propertyOrder: 0,
-    confirmed: false,
-  });
-};
-
-const handleChange = (newData: PropertySaleValue[]) => {
-  propertySaleData.value.propertySaleValues = newData;
-};
+const showAddAttrBtn = ref<Boolean>(true);
+const newAttrName = ref<String>('')
+const propertySaleKeyData = ref<PropertySaleKey>({} as PropertySaleKey);
+const propertySaleValueData = ref<PropertySaleValue[]>([]);
 
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -175,9 +123,14 @@ const columns = computed<TableColumnData[]>(() => [
     slotName: 'index',
   },
   {
-    title: '属性值',
-    dataIndex: 'propertyValue',
-    slotName: 'propertyValue',
+    title: '属性值编号',
+    dataIndex: 'valueId',
+    slotName: 'valueId',
+  },
+  {
+    title: '属性值名称',
+    dataIndex: 'valueName',
+    slotName: 'valueName',
   },
   {
     title: '操作',
@@ -193,49 +146,20 @@ const columns = computed<TableColumnData[]>(() => [
 
 const {loading, setLoading} = useLoading(false);
 
-const reset = () => {
-  propertySaleData.value = {} as PropertySaleRecord;
+const cancel = () => {
+  router.push({
+    name: 'PropertySale',
+  });
 };
 
 const handleSubmit = async () => {
-  const find = propertySaleData.value.propertySaleValues?.find(
-      (value: PropertySaleValue) => !value.confirmed
-  );
-  if (find) {
-    Modal.error({
-      title: '确认添加属性值步骤未完成！',
-      content: `请确认属性值[${find.propertyValue}]是否正确！`,
-    });
-    return;
-  }
-
-  propertySaleData.value.propertySaleValues?.forEach((item, index) => {
-    item.propertyOrder = index;
-  });
-
   setLoading(true);
   try {
-    let params = propertySaleData.value;
-
     if (action.value === '2') {
-      const {keyId} = route.params;
-      params = {
-        keyId: keyId as string,
-        ...propertySaleData.value,
-      };
-    }
-
-    if (action.value === '0') {
-      const result = await createPropertySale(params);
-      // await router.push({
-      //   name: 'PropertyStoreList',
-      // });
-      Message.info(result.msg);
-    } else if (action.value === '2') {
-      const result = await editPropertySale(params);
-      // await router.push({
-      //   name: 'PropertyStoreList',
-      // });
+      const result = await editKey(propertySaleKeyData.value);
+      await router.push({
+        name: 'PropertySale',
+      });
       Message.info(result.msg);
     }
   } catch (err) {
@@ -244,6 +168,50 @@ const handleSubmit = async () => {
     setLoading(false);
   }
 };
+
+const addAttrValue = async () => {
+  if (newAttrName.value) {
+    setLoading(true);
+    try {
+      const params = {
+        keyId: propertySaleKeyData.value.keyId as string,
+        valueName: newAttrName.value as string
+      }
+      const {msg} = await addValue(params)
+      newAttrName.value = ''
+      Message.info(msg);
+      showAddAttrBtn.value = true;
+      await refreshAttrValueList();
+    } catch (err) {
+      // do
+    } finally {
+      setLoading(false);
+    }
+  }
+}
+
+const deleteAttrValue = async (record: TableData) => {
+  Modal.confirm(
+      {
+        title: `确认删除 [${record.valueName}]？`,
+        content: '确认删除？？？',
+        onOk: async () => {
+          const params = {keyId: record.keyId, valueId: record.valueId};
+          const {msg} = await deleteValue(params);
+          Message.info(msg)
+          await refreshAttrValueList();
+        },
+      }
+  )
+}
+
+const refreshAttrValueList = async () => {
+  const params = {
+    keyId: propertySaleKeyData.value.keyId as string
+  }
+  const valueList = await queryValueList(params);
+  propertySaleValueData.value = valueList.data
+}
 
 const init = async () => {
   // actionType: 0-create, 1-view, 2-edit, 3-audit
@@ -260,22 +228,15 @@ const init = async () => {
   if (action.value === '1' || action.value === '2') {
     setLoading(true);
     try {
-      const params: PropertySaleRecord = {
-        keyId: keyId as string,
-      };
-      const {data} = await queryPropertySaleDetail(params);
-      propertySaleData.value = data;
+      const keyDetail = await queryKeyDetail({keyId: keyId as string});
+      propertySaleKeyData.value = keyDetail.data;
+      await refreshAttrValueList();
     } catch (err) {
       // you can report use errorHandler or other
     } finally {
       setLoading(false);
     }
   }
-
-  //   else if (action.value === '3') {
-  //   console.log('actionType audit ', action.value);
-  //   console.log(readonly.value);
-  // }
 };
 
 init();

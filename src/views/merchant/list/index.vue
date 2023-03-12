@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <a-card class="general-card" title="查询表格">
+    <a-card class="general-card" :title="$t('menu.list.searchTable')">
       <a-row>
         <a-col :flex="1">
           <a-form
@@ -11,36 +11,18 @@
           >
             <a-row :gutter="16">
               <a-col :span="8">
-                <a-form-item field="spuCode" label="SPU编号">
+                <a-form-item field="brandId" label="品牌编号">
                   <a-input
-                      v-model="searchFormModel.spuCode"
-                      placeholder="请输入SPU编号"
+                      v-model="searchFormModel.brandId"
+                      placeholder="请输入品牌编号"
                   />
                 </a-form-item>
               </a-col>
               <a-col :span="8">
-                <a-form-item field="skuName" label="SKU名称">
+                <a-form-item field="brandName" label="品牌名称">
                   <a-input
-                      v-model="searchFormModel.skuName"
-                      placeholder="请输入SPU名称"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item field="brandCode" label="品牌">
-                  <a-select
-                      v-model="searchFormModel.brandCode"
-                      :options="brandTypeOptions"
-                      placeholder="请选择品牌"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item field="categoryCode" label="类目">
-                  <a-select
-                      v-model="searchFormModel.categoryCode"
-                      :options="categoryTypeOptions"
-                      placeholder="请选择类目"
+                      v-model="searchFormModel.brandName"
+                      placeholder="请输入品牌名称"
                   />
                 </a-form-item>
               </a-col>
@@ -63,13 +45,13 @@
               <template #icon>
                 <icon-search/>
               </template>
-              查询
+              {{ $t('searchTable.form.search') }}
             </a-button>
             <a-button @click="reset">
               <template #icon>
                 <icon-refresh/>
               </template>
-              重置
+              {{ $t('searchTable.form.reset') }}
             </a-button>
           </a-space>
         </a-col>
@@ -78,22 +60,19 @@
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button
-                type="primary"
-                @click="
-                router.push({
-                  name: 'SpuCreate',
-                  query: {
-                    actionType: '0',
-                  },
-                })
-              "
-            >
+            <a-button type="primary" @click="routeToMerchantCreate">
               <template #icon>
                 <icon-plus/>
               </template>
-              新增
+              {{ $t('searchTable.operation.create') }}
             </a-button>
+            <a-upload action="/">
+              <template #upload-button>
+                <a-button>
+                  {{ $t('searchTable.operation.import') }}
+                </a-button>
+              </template>
+            </a-upload>
           </a-space>
         </a-col>
       </a-row>
@@ -111,36 +90,19 @@
           <a-space>
             <a-button
                 size="small"
-                @click="
-              router.push({
-                  name: 'SpuDetail',
-                  params: {
-                    spuId: record.spuId,
-                  },
-                  query: {
-                    actionType: '1',
-                  },
-                })"
+                @click="routeToMerchantDetail(record.merNo, '1')"
             >
               查看
             </a-button>
             <a-button
                 size="small"
-                @click="router.push({
-                          name: 'SpuDetail',
-                          params: {
-                            spuId: record.spuId,
-                          },
-                          query: {
-                            actionType: '2',
-                          },
-                })"
+                @click="routeToMerchantDetail(record.merNo, '2')"
             >
               编辑
             </a-button>
             <a-button
                 size="small"
-                @click="deleteSpu(record)"
+                @click="deleteMerchant(record)"
             >
               删除
             </a-button>
@@ -156,32 +118,21 @@ import {computed, reactive, ref} from 'vue';
 import useLoading from '@/hooks/loading';
 import {Pagination} from '@/types/global';
 import type {SelectOptionData} from '@arco-design/web-vue/es/select/interface';
-import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
-import {TableData} from "@arco-design/web-vue/es/table/interface";
+import type {TableColumnData, TableData} from '@arco-design/web-vue/es/table/interface';
+import {useI18n} from 'vue-i18n';
 import {useRouter} from 'vue-router';
-import {deleteBySpuId, querySpuMetaList, SpuMetaParams, SpuMetaRecord} from "@/api/product/goods";
+import {deleteByMerNo, MerchantParams, MerchantRecord, queryMerchantList} from "@/api/merchant/merchant";
 import {Modal} from "@arco-design/web-vue";
-import {deleteByPropertyGroupId} from "@/api/product/property";
-import {deleteByStoreNo} from "@/api/store/store";
-
-const router = useRouter();
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
+type Column = TableColumnData & { checked?: true };
 
-const generateFormModel = () => {
-  return {
-    spuCode: '',
-    skuCode: '',
-    skuName: '',
-    brandCode: '',
-    categoryCode: '',
-    status: '',
-  };
-};
 const {loading, setLoading} = useLoading(false);
+const {t} = useI18n();
+const router = useRouter();
 
-const renderData = ref<SpuMetaRecord[] | undefined>([]);
-const searchFormModel = ref<SpuMetaRecord>({} as SpuMetaRecord);
+const renderData = ref<MerchantRecord[] | undefined>([]);
+const searchFormModel = ref<MerchantRecord>({} as MerchantRecord);
 
 const size = ref<SizeProps>('medium');
 
@@ -192,26 +143,32 @@ const basePagination: Pagination = {
 const pagination = reactive({
   ...basePagination,
 });
+const densityList = computed(() => [
+  {
+    name: t('searchTable.size.mini'),
+    value: 'mini',
+  },
+  {
+    name: t('searchTable.size.small'),
+    value: 'small',
+  },
+  {
+    name: t('searchTable.size.medium'),
+    value: 'medium',
+  },
+  {
+    name: t('searchTable.size.large'),
+    value: 'large',
+  },
+]);
 const columns = computed<TableColumnData[]>(() => [
   {
-    title: 'SPU编号',
-    dataIndex: 'spuId',
+    title: '商户编号',
+    dataIndex: 'merNo',
   },
   {
-    title: 'SPU名称',
-    dataIndex: 'spuName',
-  },
-  {
-    title: '店铺',
-    dataIndex: 'storeId',
-  },
-  {
-    title: '品牌',
-    dataIndex: 'brandId',
-  },
-  {
-    title: '类目',
-    dataIndex: 'categoryId',
+    title: '商户名称',
+    dataIndex: 'merName',
   },
   {
     title: '状态',
@@ -221,26 +178,6 @@ const columns = computed<TableColumnData[]>(() => [
     title: '操作',
     dataIndex: 'operations',
     slotName: 'operations',
-  },
-]);
-const brandTypeOptions = computed<SelectOptionData[]>(() => [
-  {
-    label: '华为',
-    value: '1001',
-  },
-  {
-    label: '小米',
-    value: '1002',
-  },
-]);
-const categoryTypeOptions = computed<SelectOptionData[]>(() => [
-  {
-    label: '手机',
-    value: '2001',
-  },
-  {
-    label: '电脑',
-    value: '2002',
   },
 ]);
 const statusOptions = computed<SelectOptionData[]>(() => [
@@ -254,13 +191,14 @@ const statusOptions = computed<SelectOptionData[]>(() => [
   },
 ]);
 const fetchData = async (
-    params: SpuMetaParams = {current: 1, pageSize: 20}
+    params: MerchantParams = {current: 1, pageSize: 20}
 ) => {
   setLoading(true);
   try {
-    const {data} = await querySpuMetaList(params);
+    const {data} = await queryMerchantList(params);
     renderData.value = data.records;
-    pagination.current = params.current;
+    pagination.current = data.current;
+    pagination.pageSize = data.pageSize;
     pagination.total = data.total;
   } catch (err) {
     // you can report use errorHandler or other
@@ -269,35 +207,59 @@ const fetchData = async (
   }
 };
 
+fetchData();
+
 const search = () => {
   fetchData({
     ...basePagination,
     ...searchFormModel.value,
-  } as unknown as SpuMetaParams);
+  } as unknown as MerchantParams);
 };
 const onPageChange = (current: number) => {
-  fetchData({...basePagination, current} as unknown as SpuMetaParams);
+  fetchData({...basePagination, current} as unknown as MerchantParams);
 };
 
-const deleteSpu = (record: TableData) => {
-  Modal.confirm({
-    title: `确认删除 [${record.spuName}]？`,
-    content: '确认删除？？？',
-    onOk: async () => {
-      const params = {
-        spuId: record.spuId,
-      } as SpuMetaRecord;
-      await deleteBySpuId(params);
-      await fetchData();
+const reset = () => {
+  searchFormModel.value = {} as MerchantRecord;
+};
+
+const routeToMerchantDetail = (merNo: string, actionType: string) => {
+  router.push({
+    name: 'MerchantDetail',
+    params: {
+      merNo,
+    },
+    query: {
+      // 0-创建， 1-查看，2-编辑
+      actionType,
     },
   });
 };
 
-const reset = () => {
-  searchFormModel.value = {} as SpuMetaRecord;
+const routeToMerchantCreate = () => {
+  router.push({
+    name: 'MerchantCreate',
+    query: {
+      // 0-创建， 1-查看，2-编辑
+      actionType: '0',
+    },
+  });
 };
 
-search();
+const deleteMerchant = async (record: TableData) => {
+  Modal.confirm({
+    title: `确认删除 [${record.merName}]？`,
+    content: '确认删除？？？',
+    onOk: async () => {
+      const params = {
+        merNo: record.merNo,
+      };
+      await deleteByMerNo(params);
+      await fetchData();
+    },
+  });
+}
+
 </script>
 
 <style scoped lang="less">

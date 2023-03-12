@@ -74,6 +74,14 @@
           :size="size"
           @page-change="onPageChange"
       >
+        <template #propertySaleValues="{ record }">
+          <a-space>
+            <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+              {{ item.valueName }}
+            </a-tag>
+          </a-space>
+        </template>
+
         <template #status="{ record }">
           <span v-if="record.status === '0'" class="circle"></span>
           <span v-else class="circle pass"></span>
@@ -173,14 +181,7 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '属性值',
     dataIndex: 'propertySaleValues',
-    render: (data) => {
-      if (data.record.propertySaleValues) {
-        return data.record.propertySaleValues
-            .map((item: { propertyValue: string }) => item.propertyValue)
-            .join(', ');
-      }
-      return '';
-    },
+    slotName: 'propertySaleValues',
   },
   {
     title: '状态',

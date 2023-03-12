@@ -22,21 +22,41 @@ const LIST: AppRouteRecordRaw = {
       },
       children: [
         {
-          path: 'sku',
-          name: 'Sku',
-          component: () => import('@/views/product/goods/sku/index.vue'),
-          meta: {
-            locale: 'menu.product.goods.sku',
-            requiresAuth: true,
-            roles: ['*'],
-          },
-        },
-        {
           path: 'spu',
           name: 'Spu',
           component: () => import('@/views/product/goods/spu/index.vue'),
           meta: {
             locale: 'menu.product.goods.spu',
+            requiresAuth: true,
+            roles: ['*'],
+          },
+        },
+        {
+          path: 'spu/create',
+          name: 'SpuCreate',
+          component: () => import('@/views/product/goods/spu/detail/spuCreate.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true
+          },
+        },
+        {
+          path: 'spu/:spuId',
+          name: 'SpuDetail',
+          component: () => import('@/views/product/goods/spu/detail/spuDetail.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true
+          },
+        },
+        {
+          path: 'sku',
+          name: 'Sku',
+          component: () => import('@/views/product/goods/sku/index.vue'),
+          meta: {
+            locale: 'menu.product.goods.sku',
             requiresAuth: true,
             roles: ['*'],
           },
@@ -65,7 +85,7 @@ const LIST: AppRouteRecordRaw = {
       },
     },
     {
-      path: 'brand/detail/:brandId',
+      path: 'brand/:brandId',
       name: 'BrandDetail',
       component: () =>
         import('@/views/product/brand/components/brandDetail.vue'),
@@ -225,7 +245,7 @@ const LIST: AppRouteRecordRaw = {
           name: 'PropertySaleCreate',
           component: () =>
               import(
-                  '@/views/product/property/sale/components/propertySaleDetail.vue'
+                  '@/views/product/property/sale/components/propertySaleCreate.vue'
                   ),
           meta: {
             requiresAuth: true,
