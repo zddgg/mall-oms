@@ -52,6 +52,13 @@
           v-model:selected-keys="selectedKeys"
           @page-change="onPageChange"
       >
+        <template #propertySaleValues="{record}">
+          <a-space>
+            <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+              {{ item.valueName }}
+            </a-tag>
+          </a-space>
+        </template>
         <template #status="{ record }">
           <span v-if="record.status === '0'" class="circle"></span>
           <span v-else class="circle pass"></span>
@@ -67,17 +74,14 @@ import {computed, reactive, ref} from 'vue';
 import useLoading from '@/hooks/loading';
 import {Pagination} from '@/types/global';
 import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
+import {TableRowSelection} from "@arco-design/web-vue/es/table/interface";
 import {useRouter} from 'vue-router';
 import {
-  deleteSaleByKeyId,
   PropertySaleRecord,
   PropertySaleSearchParam,
   PropertyUnitSearchParam,
   queryPropertySaleList
 } from '@/api/product/property';
-import {TableData} from '@arco-design/web-vue/es/table/interface.d';
-import {Modal} from "@arco-design/web-vue";
-import {TableRowSelection} from "@arco-design/web-vue/es/table/interface";
 
 const router = useRouter();
 const {loading, setLoading} = useLoading(false);
@@ -112,14 +116,7 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '属性值',
     dataIndex: 'propertySaleValues',
-    render: (data) => {
-      if (data.record.propertySaleValues) {
-        return data.record.propertySaleValues
-            .map((item: { propertyValue: string }) => item.propertyValue)
-            .join(', ');
-      }
-      return '';
-    },
+    slotName: 'propertySaleValues',
   },
   {
     title: '状态',

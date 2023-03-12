@@ -34,7 +34,7 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'spu/create',
           name: 'SpuCreate',
-          component: () => import('@/views/product/goods/spu//components/spuCreate.vue'),
+          component: () => import('@/views/product/goods/spu/detail/spuCreate.vue'),
           meta: {
             requiresAuth: true,
             roles: ['*'],
@@ -44,7 +44,7 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'spu/:spuId',
           name: 'SpuDetail',
-          component: () => import('@/views/product/goods/spu//components/spuDetail.vue'),
+          component: () => import('@/views/product/goods/spu/detail/spuDetail.vue'),
           meta: {
             requiresAuth: true,
             roles: ['*'],
@@ -245,7 +245,7 @@ const LIST: AppRouteRecordRaw = {
           name: 'PropertySaleCreate',
           component: () =>
               import(
-                  '@/views/product/property/sale/components/propertySaleDetail.vue'
+                  '@/views/product/property/sale/components/propertySaleCreate.vue'
                   ),
           meta: {
             requiresAuth: true,

@@ -101,6 +101,13 @@
                     <a-table :columns="propertySaleColumns"
                              :data="item.propertySaleKeys"
                     >
+                      <template #propertySaleValues="{record}">
+                        <a-space>
+                          <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+                            {{ item.valueName }}
+                          </a-tag>
+                        </a-space>
+                      </template>
                     </a-table>
                   </a-tab-pane>
                 </a-tabs>
@@ -249,6 +256,13 @@
                 </div>
               </div>
             </template>
+            <template #propertySaleValues="{record}">
+              <a-space>
+                <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+                  {{ item.valueName }}
+                </a-tag>
+              </a-space>
+            </template>
             <template #operations="{ rowIndex }">
               <a-space>
                 <a-button
@@ -311,6 +325,7 @@
 import {ref} from 'vue';
 import {FormInstance} from '@arco-design/web-vue/es/form';
 import {
+  addAttrSale,
   BackendCategoryDetail,
   BackendCategoryDetailReq,
   BackendCategoryTree,
@@ -335,7 +350,6 @@ import {
   PropertySaleRecord,
   PropertyUnitRecord,
   queryPropertyGroupDetail,
-  queryPropertySaleDetail,
   queryPropertyUnitDetail
 } from "@/api/product/property";
 import PropertyUnitTable from "@/views/product/property/components/propertyUnitTable.vue";
@@ -441,12 +455,13 @@ const propertySaleModalOk = async () => {
     if (find) {
       Message.warning('属性已添加！');
     } else {
-      const params: PropertySaleRecord = {
-        keyId: keyIds[0] as string,
+      const params = {
+        categoryId: categoryDetail.value.categoryId as string,
+        attrId: keyIds[0] as string,
       };
-      const {data} = await queryPropertySaleDetail(params);
-      console.log(data)
-      propertySaleList.value.push(data);
+      const {msg} = await addAttrSale(params);
+      Message.info(msg);
+      await init();
     }
   }
   modalCancel();

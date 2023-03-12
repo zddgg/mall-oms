@@ -64,56 +64,48 @@
             </a-col>
           </a-row>
         </a-card>
-        <a-card class="general-card" title="销售属性">
-          <a-table :columns="attrSaleColumns" :data="spuAttrSaleData">
-            <template #operations="{ record, rowIndex }">
-              <a-button
-                  v-if="!deleteAttrIds.includes(record.attrId)"
-                  size="small"
-                  @click="deleteAttr(record)"
-              >
-                删除
-              </a-button>
-              <a-button
-                  v-else
-                  size="small"
-                  @click="unDeleteAttr(record)"
-              >
-                撤销删除
-              </a-button>
+        <a-card class="general-card" title="类目关联属性">
+          <a-table :data="categoryAttrSaleData"
+                   :columns="categoryAttrSaleColumns"
+          >
+            <template #propertySaleValues="{record}">
+              <a-space>
+                <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+                  {{ item.valueName }}
+                </a-tag>
+              </a-space>
+            </template>
+            <template #operations="{record}">
+              <a-space>
+                <a-button v-if="attrSaleIsBind(record)">
+                  已绑定
+                </a-button>
+                <a-button v-else @click="bindAttrToSpu(record)">
+                  绑定到SPU
+                </a-button>
+              </a-space>
             </template>
           </a-table>
-          <a-space wrap>
-            <a-tag
-                v-for="(tag, index) of addAttrNames"
-                :key="tag"
-                :closable="true"
-                @close="handleRemove(tag)"
-                color="#165dff"
-            >
-              {{ tag }}
-            </a-tag>
-
-            <a-input
-                v-if="showInput"
-                ref="inputRef"
-                :style="{ width: '90px'}"
-                size="mini"
-                v-model.trim="inputVal"
-                @keyup.enter="handleAdd"
-                @blur="handleAdd"
-            />
-            <a-tag
-                v-else
-                @click="handleEdit"
-                color="#165dff"
-            >
-              <template #icon>
-                <icon-plus/>
-              </template>
-              新增销售属性
-            </a-tag>
-          </a-space>
+        </a-card>
+        <a-card class="general-card" title="绑定属性">
+          <a-table :data="spuAttrSaleData"
+                   :columns="categoryAttrSaleColumns"
+          >
+            <template #propertySaleValues="{record}">
+              <a-space>
+                <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
+                  {{ item.valueName }}
+                </a-tag>
+              </a-space>
+            </template>
+            <template #operations="{record}">
+              <a-space>
+                <a-button @click="unbindAttrToSpu(record)">
+                  解除绑定
+                </a-button>
+              </a-space>
+            </template>
+          </a-table>
         </a-card>
       </a-space>
       <div class="actions">
@@ -131,100 +123,109 @@
 </template>
 
 <script lang="ts" setup>
-import {nextTick, ref} from 'vue';
+import {computed, ref} from 'vue';
 import {FormInstance} from '@arco-design/web-vue/es/form';
 import useLoading from '@/hooks/loading';
 import {
-  createSpu,
+  addAttrSale,
+  createSpu, deleteAttrSale,
+  queryAttrListBySpuId,
   querySpuDetail,
-  SpuAttrSaleMap,
   SpuMetaRecord,
-  SpuUpdate,
   updateBySpuId,
 } from "@/api/product/goods";
-import {Message} from "@arco-design/web-vue";
-import {useRoute} from "vue-router";
-import {TableData} from "@arco-design/web-vue/es/table/interface";
+import {Message, Modal} from "@arco-design/web-vue";
+import {useRoute, useRouter} from "vue-router";
 import {queryStoreList, StoreParams, StoreRecord} from "@/api/store/store";
 import {BrandParams, BrandRecord, queryBrandList} from "@/api/product/brand";
-import {BackendCategoryTree, queryBackendCategoryTree} from "@/api/product/category";
+import {BackendCategoryTree, queryAttrSaleListByCategoryId, queryBackendCategoryTree} from "@/api/product/category";
+import {PropertySaleRecord} from "@/api/product/property";
+import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
 
-const spuMetaData = ref<SpuMetaRecord>({} as SpuMetaRecord)
-const spuAttrSaleData = ref<SpuAttrSaleMap[]>([])
-const formRef = ref<FormInstance>();
-const {loading, setLoading} = useLoading();
 const route = useRoute();
+const router = useRouter();
+const {loading, setLoading} = useLoading();
+const formRef = ref<FormInstance>();
 
 const action = ref<string>('');
 const readonly = ref<boolean>(true);
 
-const deleteAttrIds = ref<string[]>([]);
-const addAttrNames = ref<string[]>([]);
-const inputRef = ref({
-  focus
-});
-const showInput = ref(false);
-const inputVal = ref('');
+const spuMetaData = ref<SpuMetaRecord>({} as SpuMetaRecord)
+const categoryAttrSaleData = ref<PropertySaleRecord[]>([])
+const spuAttrSaleData = ref<PropertySaleRecord[]>([])
 
 const storeData = ref<StoreRecord[] | undefined>([]);
 const brandData = ref<BrandRecord[] | undefined>([]);
 const backendCategoryOptions = ref<BackendCategoryTree[]>([]);
 
-const handleEdit = () => {
-  showInput.value = true;
-
-  nextTick(() => {
-    if (inputRef.value) {
-      inputRef.value.focus();
-    }
-  });
-};
-
-const handleAdd = () => {
-  if (inputVal.value) {
-    const b = spuAttrSaleData.value.map((item) => item.attrName).includes(inputVal.value);
-    const c = addAttrNames.value.includes(inputVal.value);
-    console.log(b)
-    console.log(c)
-    if (b || c) {
-      Message.warning('该属性名称已存在!');
-    } else {
-      addAttrNames.value.push(inputVal.value);
-    }
-    inputVal.value = '';
-  }
-  showInput.value = false;
-};
-
-const handleRemove = (key: string) => {
-  addAttrNames.value = addAttrNames.value.filter((tag) => tag !== key);
-};
-
-const deleteAttr = (record: TableData) => {
-  deleteAttrIds.value.push(record.attrId);
-}
-
-const unDeleteAttr = (record: TableData) => {
-  deleteAttrIds.value = deleteAttrIds.value.filter((id) => id !== record.attrId);
-}
-
-
-const attrSaleColumns = [
+const categoryAttrSaleColumns = computed<TableColumnData[]>(() => [
   {
     title: '属性编号',
-    dataIndex: 'attrId',
+    dataIndex: 'keyId',
   },
   {
     title: '属性名称',
-    dataIndex: 'attrName',
-    slotName: 'attrName',
+    dataIndex: 'keyName',
+  },
+  {
+    title: '属性值',
+    dataIndex: 'propertySaleValues',
+    slotName: 'propertySaleValues',
   },
   {
     title: '操作',
     dataIndex: 'operations',
     slotName: 'operations',
   },
-];
+]);
+
+const attrSaleIsBind = computed(() => (record: TableData) => { //计算属性传递参数
+  const find = spuAttrSaleData.value.find((item) => item.keyId === record.keyId);
+  return !!find;
+})
+
+
+const bindAttrToSpu = async (record: TableData) => {
+  Modal.confirm({
+    title: `确认绑定 [${record.keyName}]？`,
+    content: '',
+    onOk: async () => {
+      try {
+        const params = {
+          spuId: spuMetaData.value.spuId,
+          attrId: record.keyId,
+        }
+        const {msg} = await addAttrSale(params)
+        Message.info(msg);
+        await refreshSpuAttrSale();
+      } catch (err) {
+        // dd
+      }
+    },
+  });
+}
+
+const unbindAttrToSpu = async (record: TableData) => {
+  console.log(record)
+  Modal.confirm({
+    title: `确认解除绑定 [${record.keyName}]？`,
+    content: '',
+    onOk: async () => {
+      try {
+        const params = {
+          spuId: spuMetaData.value.spuId,
+          attrId: record.keyId,
+        }
+        const {msg} = await deleteAttrSale(params)
+        Message.info(msg);
+        await refreshSpuAttrSale();
+      } catch (err) {
+        // dd
+      }
+    },
+  });
+}
+
 
 const onSubmitClick = async () => {
   const res = await formRef.value?.validate();
@@ -232,22 +233,16 @@ const onSubmitClick = async () => {
     setLoading(true);
     try {
       if (action.value === '0') {
-        const params = {
-          spuMeta: spuMetaData.value,
-          addAttrNames: addAttrNames.value
-        } as SpuUpdate;
-        const {msg} = await createSpu(params);
+        const {msg} = await createSpu(spuMetaData.value);
         Message.info(msg);
       }
       if (action.value === '2') {
-        const params: SpuUpdate = {
-          spuMeta: spuMetaData.value,
-          deleteAttrIds: deleteAttrIds.value,
-          addAttrNames: addAttrNames.value
-        }
-        const {msg} = await updateBySpuId(params);
+        const {msg} = await updateBySpuId(spuMetaData.value);
         Message.info(msg);
       }
+      await router.push({
+        name: 'Spu',
+      });
     } catch (err) {
       // you can report use errorHandler or other
     } finally {
@@ -281,10 +276,34 @@ getBrandData();
 
 const getBackendCategoryTree = async () => {
   const {data} = await queryBackendCategoryTree({maxLevel: 3, rootHelp: false});
-  console.log(data)
   backendCategoryOptions.value = data;
 };
 getBackendCategoryTree();
+
+const refreshCategoryAttrSale = async () => {
+  try {
+    const params = {
+      categoryId: spuMetaData.value.categoryId
+    }
+    const {data} = await queryAttrSaleListByCategoryId(params);
+    categoryAttrSaleData.value = data;
+  } catch (err) {
+    // dd
+  }
+}
+
+const refreshSpuAttrSale = async () => {
+  try {
+    const params = {
+      spuId: spuMetaData.value.spuId
+    }
+    const {data} = await queryAttrListBySpuId(params)
+    spuAttrSaleData.value = data;
+  } catch (err) {
+    // dd
+  }
+}
+
 
 const init = async () => {
   const {spuId} = route.params;
@@ -299,8 +318,9 @@ const init = async () => {
         spuId: spuId as string,
       } as SpuMetaRecord;
       const {data} = await querySpuDetail(params);
-      spuMetaData.value = data.spuMeta;
-      spuAttrSaleData.value = data.spuAttrSaleMaps;
+      spuMetaData.value = data;
+      await refreshCategoryAttrSale();
+      await refreshSpuAttrSale();
     } catch (err) {
       // you can report use errorHandler or other
     } finally {

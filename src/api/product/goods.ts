@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {HttpResponse, PaginationRes} from '@/types/global';
+import {PropertySaleRecord} from "@/api/product/property";
 
 export interface SpuMetaRecord {
     id: string;
@@ -9,23 +10,6 @@ export interface SpuMetaRecord {
     brandId: string;
     categoryId: string;
     statusFlag: string;
-}
-
-export interface SpuAttrSaleMap {
-    spuId: string;
-    attrId: string;
-    attrName: string;
-}
-
-export interface SpuDetail {
-    spuMeta: SpuMetaRecord;
-    spuAttrSaleMaps: SpuAttrSaleMap[];
-}
-
-export interface SpuUpdate {
-    spuMeta: SpuMetaRecord;
-    deleteAttrIds: string[];
-    addAttrNames: string[];
 }
 
 export interface SpuMetaParams extends Partial<SpuMetaRecord> {
@@ -38,17 +22,52 @@ export function querySpuMetaList(params: SpuMetaParams) {
 }
 
 export function querySpuDetail(params: SpuMetaRecord) {
-    return axios.post<HttpResponse<SpuDetail>>('/api/product/spu/detail', params);
+    return axios.post<HttpResponse<SpuMetaRecord>>('/api/product/spu/detail', params);
 }
 
-export function createSpu(params: SpuUpdate) {
+export function createSpu(params: SpuMetaRecord) {
     return axios.post<HttpResponse>('/api/product/spu/create', params);
 }
 
-export function updateBySpuId(params: SpuUpdate) {
+export function updateBySpuId(params: SpuMetaRecord) {
     return axios.post<HttpResponse>('/api/product/spu/update', params);
 }
 
 export function deleteBySpuId(params: SpuMetaRecord) {
     return axios.post<HttpResponse>('/api/product/spu/delete', params);
+}
+
+export function queryAttrListBySpuId(params: { spuId: string }) {
+    return axios.post<HttpResponse<PropertySaleRecord[]>>(
+        '/api/product/spu/queryAttrList', params
+    );
+}
+
+export function addAttrSale(params: { spuId: string, attrId: string }) {
+    return axios.post<HttpResponse<PropertySaleRecord[]>>(
+        '/api/product/spu/addAttrSale', params
+    );
+}
+
+export function deleteAttrSale(params: { spuId: string, attrId: string }) {
+    return axios.post<HttpResponse<PropertySaleRecord[]>>(
+        '/api/product/spu/deleteAttrSale', params
+    );
+}
+
+export interface BaseInfoModel {
+    spuName: string;
+    storeId: string;
+    brandId: string;
+    categoryId: string;
+}
+
+export interface AttrSaleInfoModel {
+    attrIds: string[]
+}
+
+export type SpuCreateModel = BaseInfoModel & AttrSaleInfoModel;
+
+export function submitSpuCreateForm(data: SpuCreateModel) {
+    return axios.post('/api/channel-form/submit', {data});
 }
