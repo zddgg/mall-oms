@@ -14,8 +14,8 @@
           <CategoryInfo v-if="step === 1" @change-step="changeStep"/>
           <BaseInfo v-else-if="step === 2" @change-step="changeStep"/>
           <AttrInfo v-else-if="step === 3" @change-step="changeStep"/>
-          <SkuInfo v-else-if="step === 4" :data="submitModel" @change-step="changeStep"/>
         </keep-alive>
+        <SkuInfo v-if="step === 4" :data="submitModel" @change-step="changeStep"/>
       </div>
     </div>
   </div>

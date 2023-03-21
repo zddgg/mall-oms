@@ -63,7 +63,6 @@ import {computed, ref} from "vue";
 import {FormInstance} from "@arco-design/web-vue/es/form";
 import {PropertySaleRecord} from "@/api/product/property";
 import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
-import {Modal} from "@arco-design/web-vue";
 import {queryAttrSaleListByCategoryId} from "@/api/product/category";
 import {AttrInfoModel} from "@/api/product/goods";
 
