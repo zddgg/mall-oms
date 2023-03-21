@@ -55,19 +55,51 @@ export function deleteAttrSale(params: { spuId: string, attrId: string }) {
     );
 }
 
+export interface SkuMetaRecord {
+    id: string;
+    spuId: string;
+    skuId: string;
+    skuName: string;
+    retailPrice: number;
+    statusFlag: string;
+}
+
+export interface SkuMetaParams extends Partial<SkuMetaRecord> {
+    current: number;
+    pageSize: number;
+}
+
+export function querySkuMetaList(params: SkuMetaParams) {
+    return axios.post<HttpResponse<PaginationRes<SkuMetaRecord>>>(
+        '/api/product/sku/list', params
+    );
+}
+
+export function createSku(params: SkuMetaRecord) {
+    return axios.post<HttpResponse>(
+        '/api/product/sku/create', params
+    );
+}
+
+export interface CategoryInfoModel {
+    categoryId: string;
+    storeId: string;
+}
+
 export interface BaseInfoModel {
     spuName: string;
-    storeId: string;
     brandId: string;
-    categoryId: string;
 }
 
-export interface AttrSaleInfoModel {
-    attrIds: string[]
+export interface AttrInfoModel {
+    attrSaleIds: string[];
 }
 
-export type SpuCreateModel = BaseInfoModel & AttrSaleInfoModel;
-
-export function submitSpuCreateForm(data: SpuCreateModel) {
-    return axios.post('/api/channel-form/submit', {data});
+export interface SkuInfoModel {
+    activityName: string;
+    channelType: string;
+    promotionTime: string[];
+    promoteLink: string;
 }
+
+export type GoodsCreateModal = CategoryInfoModel & BaseInfoModel & AttrInfoModel & SkuInfoModel;

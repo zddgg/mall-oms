@@ -152,17 +152,6 @@ const getBackendCategoryTree = async () => {
 };
 getBackendCategoryTree();
 
-const refreshCategoryAttrSale = async () => {
-  try {
-    const params = {
-      categoryId: spuMetaData.value.categoryId
-    }
-    const {data} = await queryAttrSaleListByCategoryId(params);
-    categoryAttrSaleData.value = data;
-  } catch (err) {
-    // dd
-  }
-}
 </script>
 
 <style scoped lang="less">

@@ -34,7 +34,8 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'spu/create',
           name: 'SpuCreate',
-          component: () => import('@/views/product/goods/spu/detail/spuCreate.vue'),
+          // component: () => import('@/views/product/goods/spu/detail/spuCreate.vue'),
+          component: () => import('@/views/product/goods/create/index.vue'),
           meta: {
             requiresAuth: true,
             roles: ['*'],
@@ -59,6 +60,26 @@ const LIST: AppRouteRecordRaw = {
             locale: 'menu.product.goods.sku',
             requiresAuth: true,
             roles: ['*'],
+          },
+        },
+        {
+          path: 'sku/create',
+          name: 'SkuCreate',
+          component: () => import('@/views/product/goods/sku/detail/skuCreate.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true
+          },
+        },
+        {
+          path: 'sku/:skuId',
+          name: 'SkuDetail',
+          component: () => import('@/views/product/goods/sku/detail/skuDetail.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['*'],
+            hideInMenu: true
           },
         },
       ],

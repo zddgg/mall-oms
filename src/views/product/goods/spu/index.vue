@@ -161,23 +161,11 @@ import {TableData} from "@arco-design/web-vue/es/table/interface";
 import {useRouter} from 'vue-router';
 import {deleteBySpuId, querySpuMetaList, SpuMetaParams, SpuMetaRecord} from "@/api/product/goods";
 import {Modal} from "@arco-design/web-vue";
-import {deleteByPropertyGroupId} from "@/api/product/property";
-import {deleteByStoreNo} from "@/api/store/store";
 
 const router = useRouter();
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
-const generateFormModel = () => {
-  return {
-    spuCode: '',
-    skuCode: '',
-    skuName: '',
-    brandCode: '',
-    categoryCode: '',
-    status: '',
-  };
-};
 const {loading, setLoading} = useLoading(false);
 
 const renderData = ref<SpuMetaRecord[] | undefined>([]);
