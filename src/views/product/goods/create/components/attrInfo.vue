@@ -30,7 +30,7 @@
           <a-button :type="'primary'">自定义添加销售属性</a-button>
         </a-card>
         <a-card class="general-card" title="绑定销售属性">
-          <a-table :data="spuAttrSaleData"
+          <a-table :data="formData.spuAttrSaleData"
                    :columns="categoryAttrSaleColumns"
           >
             <template #propertySaleValues="{record}">
@@ -69,11 +69,10 @@ import {AttrInfoModel} from "@/api/product/goods";
 
 const emits = defineEmits(['changeStep']);
 
-const formData = ref<AttrInfoModel>({attrSaleIds: []} as AttrInfoModel);
+const formData = ref<AttrInfoModel>({attrSaleIds: [], spuAttrSaleData: []} as AttrInfoModel);
 const formRef = ref<FormInstance>();
 
 const categoryAttrSaleData = ref<PropertySaleRecord[]>([])
-const spuAttrSaleData = ref<PropertySaleRecord[]>([])
 
 const categoryAttrSaleColumns = computed<TableColumnData[]>(() => [
   {
@@ -110,32 +109,19 @@ const goPrev = () => {
 
 
 const attrSaleIsBind = computed(() => (record: TableData) => { //计算属性传递参数
-  const find = spuAttrSaleData.value.find((item) => item.keyId === record.keyId);
+  const find = formData.value.spuAttrSaleData.find((item) => item.keyId === record.keyId);
   return !!find;
 })
 
 
 const bindAttrToSpu = async (record: TableData) => {
-  Modal.confirm({
-    title: `确认绑定 [${record.keyName}]？`,
-    content: '',
-    onOk: async () => {
-      spuAttrSaleData.value.push(record as PropertySaleRecord)
-      formData.value.attrSaleIds.push(record.keyId)
-    },
-  });
+  formData.value.spuAttrSaleData.push(record as PropertySaleRecord)
+  formData.value.attrSaleIds.push(record.keyId)
 }
 
 const unbindAttrToSpu = async (record: TableData, rowIndex: number) => {
-  console.log(record)
-  Modal.confirm({
-    title: `确认解除绑定 [${record.keyName}]？`,
-    content: '',
-    onOk: async () => {
-      spuAttrSaleData.value.splice(rowIndex, 1)
-      formData.value.attrSaleIds = formData.value.attrSaleIds.filter((item) => item !== record.keyId);
-    },
-  });
+  formData.value.spuAttrSaleData.splice(rowIndex, 1)
+  formData.value.attrSaleIds = formData.value.attrSaleIds.filter((item) => item !== record.keyId);
 }
 
 const refreshCategoryAttrSale = async (categoryId: string) => {

@@ -93,6 +93,7 @@ export interface BaseInfoModel {
 
 export interface AttrInfoModel {
     attrSaleIds: string[];
+    spuAttrSaleData: PropertySaleRecord[];
 }
 
 export interface SkuInfoModel {
