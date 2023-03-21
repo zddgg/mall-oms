@@ -14,7 +14,7 @@
           <CategoryInfo v-if="step === 1" @change-step="changeStep"/>
           <BaseInfo v-else-if="step === 2" @change-step="changeStep"/>
           <AttrInfo v-else-if="step === 3" @change-step="changeStep"/>
-          <SkuInfo v-else-if="step === 4" @change-step="changeStep"/>
+          <SkuInfo v-else-if="step === 4" :data="submitModel" @change-step="changeStep"/>
         </keep-alive>
       </div>
     </div>
@@ -36,7 +36,6 @@ const changeStep = (
     direction: string | number,
     model: CategoryInfoModel | BaseInfoModel | AttrInfoModel | SkuInfoModel
 ) => {
-  console.log(model)
 
   if (typeof direction === 'number') {
     step.value = direction;
@@ -57,6 +56,7 @@ const changeStep = (
   }
   console.log('submit', submitModel.value)
 };
+
 
 </script>
 
