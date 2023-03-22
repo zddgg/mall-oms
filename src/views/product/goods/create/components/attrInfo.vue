@@ -64,7 +64,10 @@
         @ok="propertySaleModalOk"
         @cancel="modalCancel"
     >
-      <property-sale-table ref="propertySaleTableRef"/>
+      <property-sale-table
+          ref="propertySaleTableRef"
+          :row-selection-param="{type: 'checkbox', showCheckedAll: true}"
+      />
     </a-modal>
   </div>
 </template>
@@ -117,17 +120,19 @@ const categoryAttrSaleColumns = computed<TableColumnData[]>(() => [
 const propertySaleModalOk = async () => {
   const keyIds = propertySaleTableRef.value.selectedKeysHandler();
   if (!keyIds || keyIds.length === 0) {
-    Message.warning('没有选择属性数据！');
+    Message.error('没有选择属性数据！');
   } else {
-    const find = formData.value.spuAttrSaleData?.find((item) => item.keyId === keyIds[0]);
-    if (find) {
-      Message.warning('属性已添加！');
-    } else {
-      const params = {
-        keyId: keyIds[0] as string,
-      };
-      const {data} = await queryPropertySaleDetail(params);
-      bindAttrToSpu(data);
+    for (const keyId of keyIds) {
+      const find = formData.value.spuAttrSaleData?.find((item) => item.keyId === keyId);
+      if (find) {
+        Message.error(`属性[${find.keyName}]已添加！`);
+      } else {
+        const params = {
+          keyId: keyId as string,
+        };
+        const {data} = await queryPropertySaleDetail(params);
+        bindAttrToSpu(data);
+      }
     }
   }
   modalCancel();
