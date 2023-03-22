@@ -48,7 +48,7 @@
           :data="renderData"
           :bordered="false"
           :size="size"
-          :row-selection="rowSelection"
+          :row-selection="rowSelectionParam"
           v-model:selected-keys="selectedKeys"
           @page-change="onPageChange"
       >
@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref} from 'vue';
+import {computed, PropType, reactive, ref} from 'vue';
 import useLoading from '@/hooks/loading';
 import {Pagination} from '@/types/global';
 import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
@@ -86,16 +86,24 @@ import {
 const router = useRouter();
 const {loading, setLoading} = useLoading(false);
 
+const props = defineProps({
+  rowSelectionParam: {
+    type: Object as PropType<TableRowSelection>,
+    default: () => {
+      return {
+        type: 'radio',
+        showCheckedAll: true,
+      } as TableRowSelection
+    }
+  }
+})
+
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 const size = ref<SizeProps>('medium');
 
 const renderData = ref<PropertySaleRecord[] | undefined>([]);
 const searchFormModel = ref<PropertySaleRecord>({} as PropertySaleRecord);
 
-const rowSelection = reactive({
-  type: 'radio',
-  showCheckedAll: true,
-} as TableRowSelection);
 const selectedKeys = ref([]);
 const basePagination: Pagination = {
   current: 1,

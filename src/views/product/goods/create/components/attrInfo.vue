@@ -64,18 +64,21 @@
         @ok="propertySaleModalOk"
         @cancel="modalCancel"
     >
-      <property-sale-table ref="propertySaleTableRef"/>
+      <property-sale-table
+          ref="propertySaleTableRef"
+          :row-selection-param="{type: 'checkbox', showCheckedAll: true}"
+      />
     </a-modal>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, PropType, ref, watch} from "vue";
+import {computed, PropType, ref} from "vue";
 import {FormInstance} from "@arco-design/web-vue/es/form";
 import {PropertySaleRecord, queryPropertySaleDetail} from "@/api/product/property";
 import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
 import {queryAttrSaleListByCategoryId} from "@/api/product/category";
-import {AttrInfoModel, GoodsCreateModal} from "@/api/product/goods";
+import {GoodsCreateModal} from "@/api/product/goods";
 import {Message} from "@arco-design/web-vue";
 import PropertySaleTable from "@/views/product/property/components/propertySaleTable.vue";
 
@@ -84,9 +87,8 @@ const props = defineProps({
 })
 const emits = defineEmits(['changeStep']);
 
-const formData = ref<AttrInfoModel>(props.data as AttrInfoModel);
 const formRef = ref<FormInstance>();
-const tmpData = ref<GoodsCreateModal>(props.data as GoodsCreateModal)
+const formData = ref<GoodsCreateModal>(props.data as GoodsCreateModal)
 const propertySaleModalShow = ref(false);
 const propertySaleTableRef = ref({
   selectedKeysHandler: () => [],
@@ -118,17 +120,19 @@ const categoryAttrSaleColumns = computed<TableColumnData[]>(() => [
 const propertySaleModalOk = async () => {
   const keyIds = propertySaleTableRef.value.selectedKeysHandler();
   if (!keyIds || keyIds.length === 0) {
-    Message.warning('没有选择属性数据！');
+    Message.error('没有选择属性数据！');
   } else {
-    const find = formData.value.spuAttrSaleData.find((item) => item.keyId === keyIds[0]);
-    if (find) {
-      Message.warning('属性已添加！');
-    } else {
-      const params = {
-        keyId: keyIds[0] as string,
-      };
-      const {data} = await queryPropertySaleDetail(params);
-      bindAttrToSpu(data);
+    for (const keyId of keyIds) {
+      const find = formData.value.spuAttrSaleData?.find((item) => item.keyId === keyId);
+      if (find) {
+        Message.error(`属性[${find.keyName}]已添加！`);
+      } else {
+        const params = {
+          keyId: keyId as string,
+        };
+        const {data} = await queryPropertySaleDetail(params);
+        bindAttrToSpu(data);
+      }
     }
   }
   modalCancel();
@@ -156,6 +160,12 @@ const attrSaleIsBind = computed(() => (record: TableData) => { //计算属性传
 })
 
 const bindAttrToSpu = (record: TableData) => {
+  if (!formData.value.spuAttrSaleData) {
+    formData.value.spuAttrSaleData = [];
+  }
+  if (!formData.value.attrSaleIds) {
+    formData.value.attrSaleIds = [];
+  }
   formData.value.spuAttrSaleData.push(record as PropertySaleRecord)
   formData.value.attrSaleIds.push(record.keyId)
 }
@@ -180,7 +190,7 @@ const refreshCategoryAttrSale = async (categoryId: string) => {
 }
 
 const init = () => {
-  refreshCategoryAttrSale(tmpData.value.categoryId)
+  refreshCategoryAttrSale(formData.value.categoryId)
 }
 
 init();
