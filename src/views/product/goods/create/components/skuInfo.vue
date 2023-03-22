@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, PropType, ref, watch} from "vue";
+import {computed, PropType, ref} from "vue";
 import {FormInstance} from "@arco-design/web-vue/es/form";
 import {GoodsCreateModal} from "@/api/product/goods";
 import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
@@ -130,7 +130,6 @@ const getSkuAttrList = (attrList: AttrFlatMapItem[][]): AttrFlatMapItem[][] => {
 
 const init = () => {
   const spuAttrSaleData = goodsCreateData.value.spuAttrSaleData;
-  console.log(spuAttrSaleData)
   let arr: AttrFlatMapItem[][] = [];
   spuAttrSaleData?.forEach((item) => {
     let arr1: AttrFlatMapItem[] = [];

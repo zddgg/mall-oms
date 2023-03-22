@@ -30,7 +30,9 @@ import SkuInfo from './components/skuInfo.vue'
 import {AttrInfoModel, BaseInfoModel, CategoryInfoModel, GoodsCreateModal, SkuInfoModel} from "@/api/product/goods";
 
 const step = ref(1);
-const submitModel = ref<GoodsCreateModal>({} as GoodsCreateModal);
+const submitModel = ref<GoodsCreateModal>(
+    {} as GoodsCreateModal & { attrSaleIds: [] } & { spuAttrSaleData: [] }
+);
 
 const changeStep = (
     direction: string | number,
