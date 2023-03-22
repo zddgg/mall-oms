@@ -27,7 +27,7 @@
           </a-table>
         </a-card>
         <a-card class="general-card">
-          <a-button :type="'primary'">自定义添加销售属性</a-button>
+          <a-button :type="'primary'" @click="propertySaleModalShow = true">自定义添加销售属性</a-button>
         </a-card>
         <a-card class="general-card" title="绑定销售属性">
           <a-table :data="formData.spuAttrSaleData"
@@ -55,22 +55,42 @@
       <a-button type="primary" @click="goPrev">上一步</a-button>
       <a-button type="primary" @click="onNextClick">下一步</a-button>
     </a-space>
+    <a-modal
+        v-model:visible="propertySaleModalShow"
+        title="销售属性信息"
+        unmount-on-close
+        width="auto"
+        :body-style="{ padding: 0, width: '1080px' }"
+        @ok="propertySaleModalOk"
+        @cancel="modalCancel"
+    >
+      <property-sale-table ref="propertySaleTableRef"/>
+    </a-modal>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, ref} from "vue";
+import {computed, PropType, ref, watch} from "vue";
 import {FormInstance} from "@arco-design/web-vue/es/form";
-import {PropertySaleRecord} from "@/api/product/property";
+import {PropertySaleRecord, queryPropertySaleDetail} from "@/api/product/property";
 import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
 import {queryAttrSaleListByCategoryId} from "@/api/product/category";
-import {AttrInfoModel} from "@/api/product/goods";
+import {AttrInfoModel, GoodsCreateModal} from "@/api/product/goods";
+import {Message} from "@arco-design/web-vue";
+import PropertySaleTable from "@/views/product/property/components/propertySaleTable.vue";
 
+const props = defineProps({
+  data: Object as PropType<GoodsCreateModal>
+})
 const emits = defineEmits(['changeStep']);
 
-const formData = ref<AttrInfoModel>({attrSaleIds: [], spuAttrSaleData: []} as AttrInfoModel);
+const formData = ref<AttrInfoModel>(props.data as AttrInfoModel);
 const formRef = ref<FormInstance>();
-
+const tmpData = ref<GoodsCreateModal>(props.data as GoodsCreateModal)
+const propertySaleModalShow = ref(false);
+const propertySaleTableRef = ref({
+  selectedKeysHandler: () => [],
+})
 const categoryAttrSaleData = ref<PropertySaleRecord[]>([])
 
 const categoryAttrSaleColumns = computed<TableColumnData[]>(() => [
@@ -94,6 +114,30 @@ const categoryAttrSaleColumns = computed<TableColumnData[]>(() => [
   },
 ]);
 
+
+const propertySaleModalOk = async () => {
+  const keyIds = propertySaleTableRef.value.selectedKeysHandler();
+  if (!keyIds || keyIds.length === 0) {
+    Message.warning('没有选择属性数据！');
+  } else {
+    const find = formData.value.spuAttrSaleData.find((item) => item.keyId === keyIds[0]);
+    if (find) {
+      Message.warning('属性已添加！');
+    } else {
+      const params = {
+        keyId: keyIds[0] as string,
+      };
+      const {data} = await queryPropertySaleDetail(params);
+      bindAttrToSpu(data);
+    }
+  }
+  modalCancel();
+}
+
+const modalCancel = () => {
+  propertySaleModalShow.value = false;
+}
+
 const onNextClick = async () => {
   const res = await formRef.value?.validate();
   const attrValid = formData.value.attrSaleIds && formData.value.attrSaleIds.length !== 0;
@@ -106,37 +150,37 @@ const goPrev = () => {
   emits('changeStep', 'backward');
 };
 
-
 const attrSaleIsBind = computed(() => (record: TableData) => { //计算属性传递参数
   const find = formData.value.spuAttrSaleData.find((item) => item.keyId === record.keyId);
   return !!find;
 })
 
-
-const bindAttrToSpu = async (record: TableData) => {
+const bindAttrToSpu = (record: TableData) => {
   formData.value.spuAttrSaleData.push(record as PropertySaleRecord)
   formData.value.attrSaleIds.push(record.keyId)
 }
 
-const unbindAttrToSpu = async (record: TableData, rowIndex: number) => {
+const unbindAttrToSpu = (record: TableData, rowIndex: number) => {
   formData.value.spuAttrSaleData.splice(rowIndex, 1)
   formData.value.attrSaleIds = formData.value.attrSaleIds.filter((item) => item !== record.keyId);
 }
 
 const refreshCategoryAttrSale = async (categoryId: string) => {
-  try {
-    const params = {
-      categoryId
+  if (categoryId) {
+    try {
+      const params = {
+        categoryId
+      }
+      const {data} = await queryAttrSaleListByCategoryId(params);
+      categoryAttrSaleData.value = data;
+    } catch (err) {
+      // dd
     }
-    const {data} = await queryAttrSaleListByCategoryId(params);
-    categoryAttrSaleData.value = data;
-  } catch (err) {
-    // dd
   }
 }
 
 const init = () => {
-  refreshCategoryAttrSale('76')
+  refreshCategoryAttrSale(tmpData.value.categoryId)
 }
 
 init();
