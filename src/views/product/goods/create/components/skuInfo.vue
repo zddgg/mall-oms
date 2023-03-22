@@ -3,49 +3,44 @@
     <a-form ref="formRef" layout="vertical" :model="formData">
       <a-space direction="vertical" :size="16">
         <a-card class="general-card" title="添加SKU">
-          <a-grid :cols="2" :col-gap="80">
-            <a-grid-item>
-              <a-form-item label="类目">
-                <a-table
-                    :columns="columns"
-                    :data="skuList"
-                    :pagination="false"
-                    :bordered="{cell:true}"
-                    :column-resizable="true"
-                >
-                  <template #retailPriceTitle>
-                    <div>
-                      <div v-if="hiddenRetailPriceBtn">
+          <a-form-item label="类目">
+            <a-table
+                :columns="columns"
+                :data="skuList"
+                :pagination="false"
+                :bordered="{cell:true}"
+            >
+              <template #retailPriceTitle>
+                <div>
+                  <div v-if="hiddenRetailPriceBtn">
+                    零售价
+                    <icon-plus @click="hiddenRetailPriceBtn = false"/>
+                  </div>
+                  <div v-else style="display: flex">
+                    <a-input-number placeholder="适用所有" style="width: 200px"
+                                    :min="0"
+                                    :precision="2"
+                                    v-model="allRetailPrice"
+                    >
+                      <template #prepend>
                         零售价
-                        <icon-plus @click="hiddenRetailPriceBtn = false"/>
-                      </div>
-                      <div v-else style="display: flex">
-                        <a-input-number placeholder="适用所有" style="width: 200px"
-                                        :min="0"
-                                        :precision="2"
-                                        v-model="allRetailPrice"
-                        >
-                          <template #prepend>
-                            零售价
-                          </template>
-                        </a-input-number>
-                        <a-button type="primary" @click="() => {
+                      </template>
+                    </a-input-number>
+                    <a-button type="primary" @click="() => {
                           skuList.map((item) => item.retailPrice = allRetailPrice);
                           hiddenRetailPriceBtn = true;
                         }"
-                        >
-                          适用所有
-                        </a-button>
-                      </div>
-                    </div>
-                  </template>
-                  <template #retailPrice="{ record }">
-                    <a-input-number :default-value="0" v-model="record.retailPrice" :min="0" :precision="2"/>
-                  </template>
-                </a-table>
-              </a-form-item>
-            </a-grid-item>
-          </a-grid>
+                    >
+                      适用所有
+                    </a-button>
+                  </div>
+                </div>
+              </template>
+              <template #retailPrice="{ record }">
+                <a-input-number :default-value="0" v-model="record.retailPrice" :min="0" :precision="2"/>
+              </template>
+            </a-table>
+          </a-form-item>
         </a-card>
       </a-space>
     </a-form>
@@ -61,9 +56,6 @@ import {computed, PropType, ref, watch} from "vue";
 import {FormInstance} from "@arco-design/web-vue/es/form";
 import {GoodsCreateModal} from "@/api/product/goods";
 import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
-import cloneDeep from "lodash/cloneDeep";
-
-type Column = TableColumnData & { checked?: true };
 
 export interface SkuItem {
   spuName?: string;
@@ -89,7 +81,6 @@ const hiddenRetailPriceBtn = ref(true);
 const allRetailPrice = ref<Number>(0);
 
 const onNextClick = async () => {
-  console.log(skuList.value)
   const res = await formRef.value?.validate();
   if (!res) {
     emits('changeStep', 'forward', {...formData.value});
@@ -176,33 +167,13 @@ const init = () => {
   })
 }
 
-watch(
-    () => props.data,
-    (val) => {
-      goodsCreateData.value = val as GoodsCreateModal
-    },
-    { deep: true, immediate: true }
-);
-
 init();
 
 </script>
-
 
 <style scoped lang="less">
 .container {
   padding: 20px;
   overflow: hidden;
-}
-
-.actions {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 60px;
-  padding: 14px 20px 14px 0;
-  background: var(--color-bg-2);
-  text-align: right;
 }
 </style>

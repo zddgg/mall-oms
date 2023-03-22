@@ -309,7 +309,7 @@
     </a-modal>
     <a-modal
         v-model:visible="propertySaleModalShow"
-        title="属性组信息"
+        title="销售属性信息"
         unmount-on-close
         width="auto"
         :body-style="{ padding: 0, width: '1080px' }"
@@ -354,8 +354,8 @@ import {
 } from "@/api/product/property";
 import PropertyUnitTable from "@/views/product/property/components/propertyUnitTable.vue";
 import PropertyGroupTable from "@/views/product/property/components/propertyGroupTable.vue";
-import {EnumResp, queryEnum} from "@/api/common/enum";
 import PropertySaleTable from "@/views/product/property/components/propertySaleTable.vue";
+import {EnumResp, queryEnum} from "@/api/common/enum";
 
 const router = useRouter();
 const route = useRoute();

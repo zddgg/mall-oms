@@ -13,8 +13,8 @@
         <keep-alive>
           <CategoryInfo v-if="step === 1" @change-step="changeStep"/>
           <BaseInfo v-else-if="step === 2" @change-step="changeStep"/>
-          <AttrInfo v-else-if="step === 3" @change-step="changeStep"/>
         </keep-alive>
+        <AttrInfo v-if="step === 3" :data="submitModel" @change-step="changeStep"/>
         <SkuInfo v-if="step === 4" :data="submitModel" @change-step="changeStep"/>
       </div>
     </div>
@@ -54,9 +54,7 @@ const changeStep = (
   } else if (direction === 'backward') {
     step.value = Math.max(1, step.value - 1);
   }
-  console.log('submit', submitModel.value)
 };
-
 
 </script>
 
