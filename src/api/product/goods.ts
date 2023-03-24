@@ -81,6 +81,22 @@ export function createSku(params: SkuMetaRecord) {
     );
 }
 
+export interface AttrFlatMapItem {
+    attrId?: string;
+    attrName?: string;
+    attrValueId?: string;
+    attrValueName?: string;
+}
+
+export interface SkuItem {
+    spuName?: string;
+    skuName?: string;
+    retailPrice?: number;
+    attrList?: AttrFlatMapItem[];
+
+    [x: string]: any;
+}
+
 export interface CategoryInfoModel {
     categoryId: string;
     storeId: string;
@@ -93,14 +109,18 @@ export interface BaseInfoModel {
 
 export interface AttrInfoModel {
     attrSaleIds: string[];
-    spuAttrSaleData: PropertySaleRecord[];
+    spuAttrSaleDataList: PropertySaleRecord[];
 }
 
 export interface SkuInfoModel {
-    activityName: string;
-    channelType: string;
-    promotionTime: string[];
-    promoteLink: string;
+    skuList: SkuItem[];
 }
 
 export type GoodsCreateModal = CategoryInfoModel & BaseInfoModel & AttrInfoModel & SkuInfoModel;
+
+export function spuSkuCreate(params: GoodsCreateModal) {
+    console.log(params)
+    return axios.post<HttpResponse>(
+        '/api/product/spu/spuSkuCreate', params
+    );
+}

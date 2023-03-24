@@ -27,10 +27,12 @@
           </a-table>
         </a-card>
         <a-card class="general-card">
-          <a-button :type="'primary'" @click="propertySaleModalShow = true">自定义添加销售属性</a-button>
+          <a-button :type="'primary'" @click="propertySaleModalShow = true">
+            选择销售属性
+          </a-button>
         </a-card>
         <a-card class="general-card" title="绑定销售属性">
-          <a-table :data="formData.spuAttrSaleData"
+          <a-table :data="formData.spuAttrSaleDataList"
                    :columns="categoryAttrSaleColumns"
           >
             <template #propertySaleValues="{record}">
@@ -123,7 +125,7 @@ const propertySaleModalOk = async () => {
     Message.error('没有选择属性数据！');
   } else {
     for (const keyId of keyIds) {
-      const find = formData.value.spuAttrSaleData?.find((item) => item.keyId === keyId);
+      const find = formData.value.spuAttrSaleDataList?.find((item) => item.keyId === keyId);
       if (find) {
         Message.error(`属性[${find.keyName}]已添加！`);
       } else {
@@ -155,23 +157,23 @@ const goPrev = () => {
 };
 
 const attrSaleIsBind = computed(() => (record: TableData) => { //计算属性传递参数
-  const find = formData.value.spuAttrSaleData.find((item) => item.keyId === record.keyId);
+  const find = formData.value.spuAttrSaleDataList?.find((item) => item.keyId === record.keyId);
   return !!find;
 })
 
 const bindAttrToSpu = (record: TableData) => {
-  if (!formData.value.spuAttrSaleData) {
-    formData.value.spuAttrSaleData = [];
+  if (!formData.value.spuAttrSaleDataList) {
+    formData.value.spuAttrSaleDataList = [];
   }
   if (!formData.value.attrSaleIds) {
     formData.value.attrSaleIds = [];
   }
-  formData.value.spuAttrSaleData.push(record as PropertySaleRecord)
+  formData.value.spuAttrSaleDataList.push(record as PropertySaleRecord)
   formData.value.attrSaleIds.push(record.keyId)
 }
 
 const unbindAttrToSpu = (record: TableData, rowIndex: number) => {
-  formData.value.spuAttrSaleData.splice(rowIndex, 1)
+  formData.value.spuAttrSaleDataList.splice(rowIndex, 1)
   formData.value.attrSaleIds = formData.value.attrSaleIds.filter((item) => item !== record.keyId);
 }
 
