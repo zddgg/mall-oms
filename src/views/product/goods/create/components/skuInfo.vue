@@ -6,7 +6,7 @@
           <a-form-item label="类目">
             <a-table
                 :columns="columns"
-                :data="skuList"
+                :data="formData.skuList"
                 :pagination="false"
                 :bordered="{cell:true}"
             >
@@ -27,7 +27,7 @@
                       </template>
                     </a-input-number>
                     <a-button type="primary" @click="() => {
-                          skuList.map((item) => item.retailPrice = allRetailPrice);
+                          formData.skuList.map((item) => item.retailPrice = allRetailPrice);
                           hiddenRetailPriceBtn = true;
                         }"
                     >
@@ -46,7 +46,7 @@
     </a-form>
     <a-space style="margin-left: 20px">
       <a-button type="primary" @click="goPrev">上一步</a-button>
-      <a-button type="primary" @click="onNextClick">下一步</a-button>
+      <a-button type="primary" @click="onNextClick">提交</a-button>
     </a-space>
   </div>
 </template>
@@ -54,17 +54,8 @@
 <script lang="ts" setup>
 import {computed, PropType, ref} from "vue";
 import {FormInstance} from "@arco-design/web-vue/es/form";
-import {GoodsCreateModal} from "@/api/product/goods";
+import {AttrFlatMapItem, GoodsCreateModal, SkuInfoModel, SkuItem} from "@/api/product/goods";
 import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
-
-export interface SkuItem {
-  spuName?: string;
-  skuName?: string;
-  retailPrice?: number;
-  attrList?: AttrFlatMapItem[];
-
-  [x: string]: any;
-}
 
 const props = defineProps({
   data: Object as PropType<GoodsCreateModal>
@@ -74,16 +65,15 @@ const emits = defineEmits(['changeStep']);
 
 const goodsCreateData = ref<GoodsCreateModal>(props.data as GoodsCreateModal)
 
-const formData = ref({});
 const formRef = ref<FormInstance>();
-const skuList = ref<SkuItem[]>([]);
+const formData = ref<SkuInfoModel>({skuList: []} as SkuInfoModel);
 const hiddenRetailPriceBtn = ref(true);
 const allRetailPrice = ref<Number>(0);
 
 const onNextClick = async () => {
   const res = await formRef.value?.validate();
   if (!res) {
-    emits('changeStep', 'forward', {...formData.value});
+    emits('changeStep', 'submit', {...formData.value});
   }
 };
 
@@ -104,13 +94,6 @@ const columns = computed<TableColumnData[]>(() => [
   },
 ])
 
-export interface AttrFlatMapItem {
-  attrId?: string;
-  attrName?: string;
-  attrValueId?: string;
-  attrValueName?: string;
-}
-
 const getSkuAttrList = (attrList: AttrFlatMapItem[][]): AttrFlatMapItem[][] => {
   const result: AttrFlatMapItem[][] = [];
   const backTracking = (path: AttrFlatMapItem[], level: number) => {
@@ -129,7 +112,7 @@ const getSkuAttrList = (attrList: AttrFlatMapItem[][]): AttrFlatMapItem[][] => {
 };
 
 const init = () => {
-  const spuAttrSaleData = goodsCreateData.value.spuAttrSaleData;
+  const spuAttrSaleData = goodsCreateData.value.spuAttrSaleDataList;
   let arr: AttrFlatMapItem[][] = [];
   spuAttrSaleData?.forEach((item) => {
     let arr1: AttrFlatMapItem[] = [];
@@ -162,7 +145,7 @@ const init = () => {
     item.forEach((subItem) => {
       sku[subItem.attrId as string] = subItem;
     })
-    skuList.value.push(sku)
+    formData.value.skuList.push(sku)
   })
 }
 
