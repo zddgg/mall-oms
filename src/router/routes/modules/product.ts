@@ -216,8 +216,8 @@ const LIST: AppRouteRecordRaw = {
         },
         {
           path: 'group',
-          name: 'PropertyGroup',
-          component: () => import('@/views/product/property/group/index.vue'),
+          name: 'AttrGroup',
+          component: () => import('@/views/product/attr/group/index.vue'),
           meta: {
             locale: 'menu.product.property.group',
             requiresAuth: true,
@@ -226,10 +226,10 @@ const LIST: AppRouteRecordRaw = {
         },
         {
           path: 'group/create',
-          name: 'PropertyGroupCreate',
+          name: 'AttrGroupCreate',
           component: () =>
               import(
-                  '@/views/product/property/group/components/propertyGroupDetail.vue'
+                  '@/views/product/attr/group/components/detail.vue'
                   ),
           meta: {
             requiresAuth: true,
@@ -238,11 +238,11 @@ const LIST: AppRouteRecordRaw = {
           },
         },
         {
-          path: 'group/:propertyGroupId',
-          name: 'PropertyGroupDetail',
+          path: 'group/:groupId',
+          name: 'AttrGroupDetail',
           component: () =>
               import(
-                  '@/views/product/property/group/components/propertyGroupDetail.vue'
+                  '@/views/product/attr/group/components/detail.vue'
                   ),
           meta: {
             requiresAuth: true,

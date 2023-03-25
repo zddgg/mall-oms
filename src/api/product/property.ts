@@ -60,15 +60,32 @@ export interface PropertyGroupRecord {
     propertyUnitKeys?: PropertyUnitRecord[]
 }
 
+export interface AttrGroupRecord {
+    groupId?: string;
+    groupName?: string;
+    status?: string;
+    attrUnitRecords?: AttrUnitRecord[]
+}
+
+export interface AttrGroupSearchParam extends Partial<AttrGroupRecord> {
+    current: number;
+    pageSize: number;
+}
+
 export interface PropertyGroupSearchParam extends Partial<PropertyGroupRecord> {
     current: number;
     pageSize: number;
 }
 
-export interface PropertyGroupCreate {
-    propertyGroupId?: string;
-    propertyGroupName: string;
-    propertyUnitKeys: PropertyUnitRecord[];
+export interface AttrGroupCreate {
+    groupId?: string;
+    groupName?: string;
+    attrIds?: string[];
+}
+
+export interface AttrGroupUnit {
+    groupId?: string;
+    attrId?: string;
 }
 
 export function queryPropertyGroupList(params: PropertyGroupSearchParam) {
@@ -78,23 +95,38 @@ export function queryPropertyGroupList(params: PropertyGroupSearchParam) {
     );
 }
 
-export function createPropertyGroup(params: PropertyGroupCreate) {
-    return axios.post<HttpResponse>('/api/property/group/create', params);
-}
-
-export function queryPropertyGroupDetail(params: PropertyGroupRecord) {
-    return axios.post<HttpResponse<PropertyGroupRecord>>(
-        '/api/property/group/detail',
+export function queryAttrGroupPage(params: AttrGroupSearchParam) {
+    return axios.post<HttpResponse<PaginationRes<AttrGroupRecord>>>(
+        '/api/attr/group/page',
         params
     );
 }
 
-export function editPropertyGroup(params: PropertyGroupCreate) {
-    return axios.post<HttpResponse>('/api/property/group/edit', params);
+export function createAttrGroup(params: AttrGroupCreate) {
+    return axios.post<HttpResponse>('/api/attr/group/create', params);
 }
 
-export function deleteByPropertyGroupId(params: PropertyGroupRecord) {
-    return axios.post<HttpResponse>('/api/property/group/delete', params);
+export function queryAttrGroupDetail(params: AttrGroupRecord) {
+    return axios.post<HttpResponse<AttrGroupRecord>>(
+        '/api/attr/group/detail',
+        params
+    );
+}
+
+export function updateAttrGroup(params: AttrGroupCreate) {
+    return axios.post<HttpResponse>('/api/attr/group/update', params);
+}
+
+export function deleteByGroupId(params: AttrGroupRecord) {
+    return axios.post<HttpResponse>('/api/attr/group/delete', params);
+}
+
+export function unBindAttrUnitByAttrId(params: AttrGroupUnit) {
+    return axios.post<HttpResponse>('/api/attr/group/unBindAttrUnit', params);
+}
+
+export function getBindAttrUnitByGroupId(params: AttrGroupUnit) {
+    return axios.post<HttpResponse<AttrUnitRecord[]>>('/api/attr/group/getBindAttrUnit', params);
 }
 
 export interface PropertySaleValue {
