@@ -10,10 +10,19 @@
         >
           <a-grid :cols="3" :col-gap="20">
             <a-grid-item>
-              <a-form-item field="propertyKeyName" label="属性名称">
+              <a-form-item field="attrId" label="属性编号">
                 <a-input
-                    v-model="searchFormModel.unitKeyName"
-                    placeholder="请输入SPU编号"
+                    v-model="searchFormModel.attrId"
+                    placeholder="请输入属性编号"
+                    allow-clear
+                />
+              </a-form-item>
+            </a-grid-item>
+            <a-grid-item>
+              <a-form-item field="attrName" label="属性名称">
+                <a-input
+                    v-model="searchFormModel.attrName"
+                    placeholder="请输入属性名称"
                     allow-clear
                 />
               </a-form-item>
@@ -40,14 +49,14 @@
         </a-form>
       </a-row>
       <a-table
-          row-key="unitKeyId"
+          row-key="attrId"
           :loading="loading"
           :pagination="pagination"
           :columns="columns"
           :data="renderData"
           :bordered="false"
           :size="size"
-          :row-selection="rowSelection"
+          :row-selection="rowSelectionParam"
           v-model:selectedKeys="selectedKeys"
           @page-change="onPageChange"
       >
@@ -62,29 +71,37 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref} from 'vue';
+import {computed, PropType, reactive, ref} from 'vue';
 import useLoading from '@/hooks/loading';
 import {Pagination} from '@/types/global';
 import type {TableColumnData, TableRowSelection} from '@arco-design/web-vue/es/table/interface';
 import {useRouter} from 'vue-router';
-import {PropertyUnitRecord, PropertyUnitSearchParam, queryPropertyUnitList,} from '@/api/product/property';
+import {AttrUnitRecord, AttrUnitSearchParam, queryAttrUnitPage,} from '@/api/product/property';
 import {EnumResp, queryEnum} from '@/api/common/enum';
 import {TableData} from '@arco-design/web-vue/es/table/interface.d';
 
 const router = useRouter();
 const {loading, setLoading} = useLoading(false);
 
+const props = defineProps({
+  rowSelectionParam: {
+    type: Object as PropType<TableRowSelection>,
+    default: () => {
+      return {
+        type: 'radio',
+        showCheckedAll: true,
+      } as TableRowSelection
+    }
+  }
+})
+
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 const size = ref<SizeProps>('medium');
 
-const renderData = ref<PropertyUnitRecord[] | undefined>([]);
-const searchFormModel = ref<PropertyUnitRecord>({} as PropertyUnitRecord);
+const renderData = ref<AttrUnitRecord[] | undefined>([]);
+const searchFormModel = ref<AttrUnitSearchParam>({} as AttrUnitSearchParam);
 const formShowTypeOptions = ref<EnumResp[]>([]);
 
-const rowSelection = reactive({
-  type: 'radio',
-  showCheckedAll: true,
-} as TableRowSelection);
 const selectedKeys = ref([]);
 
 const basePagination: Pagination = {
@@ -97,15 +114,15 @@ const pagination = reactive({
 const columns = computed<TableColumnData[]>(() => [
   {
     title: '属性ID',
-    dataIndex: 'unitKeyId',
+    dataIndex: 'attrId',
   },
   {
     title: '属性名称',
-    dataIndex: 'unitKeyName',
+    dataIndex: 'attrName',
   },
   {
     title: '属性单位',
-    dataIndex: 'unitKeyUnit',
+    dataIndex: 'unit',
   },
   {
     title: '表单展示方式',
@@ -124,11 +141,11 @@ const columns = computed<TableColumnData[]>(() => [
   },
   {
     title: '属性值',
-    dataIndex: 'propertyUnitValues',
+    dataIndex: 'attrUnitValues',
     render: (data) => {
-      if (data.record.propertyUnitValues) {
-        return data.record.propertyUnitValues
-            .map((item: { unitValue: string }) => item.unitValue)
+      if (data.record.attrUnitValues) {
+        return data.record.attrUnitValues
+            .map((item: { attrValueName: string }) => item.attrValueName)
             .join(', ');
       }
       return '';
@@ -141,11 +158,11 @@ const columns = computed<TableColumnData[]>(() => [
   },
 ]);
 const fetchData = async (
-    params: PropertyUnitSearchParam = {current: 1, pageSize: 20}
+    params: AttrUnitSearchParam = {current: 1, pageSize: 20}
 ) => {
   setLoading(true);
   try {
-    const {data} = await queryPropertyUnitList(params);
+    const {data} = await queryAttrUnitPage(params);
     renderData.value = data.records;
     pagination.current = params.current;
     pagination.total = data.total;
@@ -160,17 +177,17 @@ const search = () => {
   fetchData({
     ...basePagination,
     ...searchFormModel.value,
-  } as unknown as PropertyUnitSearchParam);
+  } as unknown as AttrUnitSearchParam);
 };
 const onPageChange = (current: number) => {
   fetchData({
     ...basePagination,
     current,
-  } as unknown as PropertyUnitSearchParam);
+  } as unknown as AttrUnitSearchParam);
 };
 
 const reset = () => {
-  searchFormModel.value = {} as PropertyUnitRecord;
+  searchFormModel.value = {} as AttrUnitSearchParam;
 };
 
 const init = async () => {

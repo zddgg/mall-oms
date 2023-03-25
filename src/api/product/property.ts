@@ -1,57 +1,51 @@
 import axios from 'axios';
 import {HttpResponse, PaginationRes} from '@/types/global';
 
-export interface PropertyUnitValue {
-    unitKeyId?: string;
-    unitValue: string;
-    unitValueOrder: number;
+export interface AttrUnitValue {
+    attrId?: string;
+    attrValueName: string;
+    attrValueOrder: number;
     confirmed: boolean;
 }
 
-export interface PropertyUnitRecord {
-    id?: string;
-    creator?: string;
-    created?: string;
-    updater?: string;
-    updated?: string;
-    unitKeyId?: string;
-    unitKeyName?: string;
-    unitKeyUnit?: string;
+export interface AttrUnitRecord {
+    attrId?: string;
+    attrName?: string;
+    unit?: string;
     formShowType?: string;
-    unitValue?: string;
     status?: string;
-    propertyUnitValues?: PropertyUnitValue[];
+    attrUnitValues?: AttrUnitValue[];
 }
 
-export interface PropertyUnitSearchParam extends Partial<PropertyUnitRecord> {
+export interface AttrUnitSearchParam extends Partial<AttrUnitRecord> {
     current: number;
     pageSize: number;
 }
 
-export function queryPropertyUnitList(params: PropertyUnitSearchParam) {
-    return axios.post<HttpResponse<PaginationRes<PropertyUnitRecord>>>(
-        '/api/property/unit/list',
+export function queryAttrUnitPage(params: AttrUnitSearchParam) {
+    return axios.post<HttpResponse<PaginationRes<AttrUnitRecord>>>(
+        '/api/attr/unit/page',
         params
     );
 }
 
-export function createPropertyUnit(params: PropertyUnitRecord) {
-    return axios.post<HttpResponse>('/api/property/unit/create', params);
+export function createAttrUnit(params: AttrUnitRecord) {
+    return axios.post<HttpResponse>('/api/attr/unit/create', params);
 }
 
-export function queryPropertyUnitDetail(params: PropertyUnitRecord) {
-    return axios.post<HttpResponse<PropertyUnitRecord>>(
-        '/api/property/unit/detail',
+export function queryAttrUnitDetail(params: AttrUnitRecord) {
+    return axios.post<HttpResponse<AttrUnitRecord>>(
+        '/api/attr/unit/detail',
         params
     );
 }
 
-export function editPropertyUnit(params: PropertyUnitRecord) {
-    return axios.post<HttpResponse>('/api/property/unit/edit', params);
+export function updateAttrUnit(params: AttrUnitRecord) {
+    return axios.post<HttpResponse>('/api/attr/unit/update', params);
 }
 
-export function deleteByUnitKeyId(params: PropertyUnitRecord) {
-    return axios.post<HttpResponse>('/api/property/unit/delete', params);
+export function deleteByAttrId(params: AttrUnitRecord) {
+    return axios.post<HttpResponse>('/api/attr/unit/delete', params);
 }
 
 export interface PropertyGroupRecord {
@@ -66,15 +60,32 @@ export interface PropertyGroupRecord {
     propertyUnitKeys?: PropertyUnitRecord[]
 }
 
+export interface AttrGroupRecord {
+    groupId?: string;
+    groupName?: string;
+    status?: string;
+    attrUnitRecords?: AttrUnitRecord[]
+}
+
+export interface AttrGroupSearchParam extends Partial<AttrGroupRecord> {
+    current: number;
+    pageSize: number;
+}
+
 export interface PropertyGroupSearchParam extends Partial<PropertyGroupRecord> {
     current: number;
     pageSize: number;
 }
 
-export interface PropertyGroupCreate {
-    propertyGroupId?: string;
-    propertyGroupName: string;
-    propertyUnitKeys: PropertyUnitRecord[];
+export interface AttrGroupCreate {
+    groupId?: string;
+    groupName?: string;
+    attrIds?: string[];
+}
+
+export interface AttrGroupUnit {
+    groupId?: string;
+    attrId?: string;
 }
 
 export function queryPropertyGroupList(params: PropertyGroupSearchParam) {
@@ -84,23 +95,38 @@ export function queryPropertyGroupList(params: PropertyGroupSearchParam) {
     );
 }
 
-export function createPropertyGroup(params: PropertyGroupCreate) {
-    return axios.post<HttpResponse>('/api/property/group/create', params);
-}
-
-export function queryPropertyGroupDetail(params: PropertyGroupRecord) {
-    return axios.post<HttpResponse<PropertyGroupRecord>>(
-        '/api/property/group/detail',
+export function queryAttrGroupPage(params: AttrGroupSearchParam) {
+    return axios.post<HttpResponse<PaginationRes<AttrGroupRecord>>>(
+        '/api/attr/group/page',
         params
     );
 }
 
-export function editPropertyGroup(params: PropertyGroupCreate) {
-    return axios.post<HttpResponse>('/api/property/group/edit', params);
+export function createAttrGroup(params: AttrGroupCreate) {
+    return axios.post<HttpResponse>('/api/attr/group/create', params);
 }
 
-export function deleteByPropertyGroupId(params: PropertyGroupRecord) {
-    return axios.post<HttpResponse>('/api/property/group/delete', params);
+export function queryAttrGroupDetail(params: AttrGroupRecord) {
+    return axios.post<HttpResponse<AttrGroupRecord>>(
+        '/api/attr/group/detail',
+        params
+    );
+}
+
+export function updateAttrGroup(params: AttrGroupCreate) {
+    return axios.post<HttpResponse>('/api/attr/group/update', params);
+}
+
+export function deleteByGroupId(params: AttrGroupRecord) {
+    return axios.post<HttpResponse>('/api/attr/group/delete', params);
+}
+
+export function unBindAttrUnitByAttrId(params: AttrGroupUnit) {
+    return axios.post<HttpResponse>('/api/attr/group/unBindAttrUnit', params);
+}
+
+export function getBindAttrUnitByGroupId(params: AttrGroupUnit) {
+    return axios.post<HttpResponse<AttrUnitRecord[]>>('/api/attr/group/getBindAttrUnit', params);
 }
 
 export interface PropertySaleValue {
@@ -116,6 +142,7 @@ export interface PropertySaleValue {
     status?: string;
     confirmed?: boolean;
 }
+
 export interface PropertySaleKey {
     id?: string;
     creator?: string;

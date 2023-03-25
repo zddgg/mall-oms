@@ -37,8 +37,9 @@ import {
 } from "@/api/product/goods";
 import {submitChannelForm, UnitChannelModel} from "@/api/form";
 import useLoading from "@/hooks/loading";
+import {Message} from "@arco-design/web-vue";
 
-const { loading, setLoading } = useLoading(false);
+const {loading, setLoading} = useLoading(false);
 
 const step = ref(1);
 const submitModel = ref<GoodsCreateModal>(
@@ -48,9 +49,8 @@ const submitModel = ref<GoodsCreateModal>(
 const submitForm = async () => {
   setLoading(true);
   try {
-    await spuSkuCreate(submitModel.value); // The mock api default success
-    step.value = 3;
-    submitModel.value = {} as GoodsCreateModal & { attrSaleIds: [] } & { spuAttrSaleDataList: [] }; // init
+    const {msg} = await spuSkuCreate(submitModel.value); // The mock api default success
+    Message.info(msg);
   } catch (err) {
     // you can report use errorHandler or other
   } finally {

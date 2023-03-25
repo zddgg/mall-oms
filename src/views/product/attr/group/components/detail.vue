@@ -14,7 +14,7 @@
             <a-col :span="8">
               <a-form-item
                   label="属性组名称"
-                  field="propertyGroupName"
+                  field="groupName"
                   show-colon
                   :rules="[
                   { required: !readonly, message: '属性组名称不能为空！' },
@@ -22,112 +22,66 @@
               >
                 <a-input
                     v-if="!readonly"
-                    v-model="formData.propertyGroupName"
+                    v-model="formData.groupName"
                     placeholder="请填写属性组名称"
                 />
-                <span v-else>{{ formData.propertyGroupName }}</span>
+                <span v-else>{{ formData.groupName }}</span>
               </a-form-item>
             </a-col>
-          </a-row>
-        </a-card>
-        <a-card v-if="!readonly" class="general-card" title="选择属性">
-          <a-row :gutter="80">
-            <a-col :span="8">
+            <a-col :span="8" v-if="!readonly">
               <a-form-item
-                  label="属性名称"
-                  field="propertySearchName"
+                  label="选择属性"
                   show-colon
               >
-                <a-input
-                    v-model="propertySearchName"
-                    placeholder="请填写属性名称"
-                    allow-clear
-                />
+                <a-button type="primary" @click="attrUnitModalShow = true">
+                  添加
+                </a-button>
               </a-form-item>
             </a-col>
-            <a-space :size="18">
-              <a-button type="primary" @click="search">
-                <template #icon>
-                  <icon-search />
-                </template>
-                查询
-              </a-button>
-            </a-space>
           </a-row>
-          <a-table
-              v-if="propertyStoreData && propertyStoreData.length !== 0"
-              row-key="id"
-              :loading="loading"
-              :pagination="pagination"
-              :columns="columns"
-              :data="propertyStoreData"
-              :bordered="false"
-              :size="'medium'"
-              @page-change="onPageChange"
-          >
-            <template #operations="{ record }">
-              <a-space>
-                <a-button
-                    size="small"
-                    @click="
-                    router.push({
-                      name: 'PropertyUnitDetail',
-                      params: {
-                        propertyNo: record.unitKeyId,
-                      },
-                      query: {
-                        actionType: '1',
-                      },
-                    })
-                  "
-                >
-                  查看
-                </a-button>
-                <a-button
-                    :disabled="
-                    formData.propertyUnitKeys.find(
-                      (item) => item.unitKeyId === record.unitKeyId
-                    ) !== undefined
-                  "
-                    type="primary"
-                    size="small"
-                    @click="
-                    () => {
-                      formData.propertyUnitKeys.push(record);
-                    }
-                  "
-                >
-                  选择
-                </a-button>
-              </a-space>
-            </template>
-          </a-table>
         </a-card>
         <a-card
-            v-if="formData.propertyUnitKeys.length !== 0"
             class="general-card"
-            title="属性信息"
+            title="已绑定属性信息"
         >
           <a-table
               row-key="id"
               :loading="loading"
               :pagination="false"
               :columns="columns"
-              :data="formData.propertyUnitKeys"
+              :data="formData.attrUnitRecords"
+              :bordered="false"
+              :size="'medium'"
+          >
+            <template #operations="{ record }">
+              <a-space>
+                <a-button
+                    v-if="!readonly"
+                    size="small"
+                    @click="unBindAttrUnit(record.attrId)"
+                >
+                  删除
+                </a-button>
+              </a-space>
+            </template>
+          </a-table>
+        </a-card>
+        <a-card v-if="!readonly" class="general-card" title="新添加属性信息">
+          <a-table
+              row-key="id"
+              :loading="loading"
+              :pagination="false"
+              :columns="columns"
+              :data="newAttrUnitRecords"
               :bordered="false"
               :size="'medium'"
           >
             <template #operations="{ rowIndex }">
               <a-space>
                 <a-button
-                    size="small"
-                >
-                  查看
-                </a-button>
-                <a-button
                     v-if="!readonly"
                     size="small"
-                    @click="formData.propertyUnitKeys.splice(rowIndex, 1)"
+                    @click="newAttrUnitRecords.splice(rowIndex, 1)"
                 >
                   删除
                 </a-button>
@@ -136,7 +90,7 @@
           </a-table>
         </a-card>
       </a-space>
-      <div class="actions">
+      <div v-if="!readonly" class="actions">
         <a-space>
           <a-button type="primary" html-type="submit" :loading="loading">
             提交
@@ -145,70 +99,102 @@
         </a-space>
       </div>
     </a-form>
+    <a-modal
+        v-model:visible="attrUnitModalShow"
+        title="属性单元信息"
+        unmount-on-close
+        width="auto"
+        :body-style="{ padding: 0, width: '1080px' }"
+        @ok="propertyUnitModalOk"
+        @cancel="modalCancel"
+    >
+      <property-unit-table
+          ref="propertyUnitTableRef"
+          :row-selection-param="{type: 'checkbox', showCheckedAll: true}"
+      />
+    </a-modal>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref} from 'vue';
+import {computed, ref} from 'vue';
 import {FormInstance} from '@arco-design/web-vue/es/form';
 import useLoading from '@/hooks/loading';
-
-import {Pagination} from '@/types/global';
 import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
 import {useRoute, useRouter} from 'vue-router';
 import {
-  createPropertyGroup,
-  editPropertyGroup,
-  PropertyGroupCreate,
-  PropertyGroupRecord,
-  PropertyUnitRecord,
-  PropertyUnitSearchParam,
-  queryPropertyGroupDetail,
-  queryPropertyUnitList,
+  AttrGroupCreate,
+  AttrGroupRecord,
+  AttrUnitRecord,
+  createAttrGroup,
+  getBindAttrUnitByGroupId,
+  queryAttrGroupDetail,
+  queryAttrUnitDetail,
+  unBindAttrUnitByAttrId,
+  updateAttrGroup,
 } from '@/api/product/property';
 import {EnumResp, queryEnum} from '@/api/common/enum';
 import {TableData} from '@arco-design/web-vue/es/table/interface.d';
-import {Message, Modal} from '@arco-design/web-vue';
+import {Message} from '@arco-design/web-vue';
+import PropertyUnitTable from "@/views/product/property/components/propertyUnitTable.vue";
 
 const router = useRouter();
 const route = useRoute();
 
 const formRef = ref<FormInstance>();
 const {loading, setLoading} = useLoading();
-const propertyStoreData = ref<PropertyUnitRecord[] | undefined>([]);
 const formShowTypeOptions = ref<EnumResp[]>([]);
-const propertySearchName = ref('');
 // 0-create, 1-view, 2-edit, 3-audit
 const action = ref<string | string[]>('');
 const readonly = ref<boolean>(true);
-const generateFormModel = () => {
-  return {
-    propertyGroupName: '',
-    propertyUnitKeys: [],
-  };
-};
-const formData = ref<PropertyGroupCreate>(generateFormModel());
+const attrUnitModalShow = ref<boolean>(false);
 
-const basePagination: Pagination = {
-  current: 1,
-  pageSize: 10,
-};
-const pagination = reactive({
-  ...basePagination,
-});
+const formData = ref<AttrGroupRecord>({} as AttrGroupRecord);
+const newAttrUnitRecords = ref<AttrUnitRecord[]>([]);
+const propertyUnitTableRef = ref({
+  selectedKeysHandler: () => [],
+})
+
+const addNewAttrUnit = async (attrId: string) => {
+  const {data} = await queryAttrUnitDetail({attrId});
+  console.log(data)
+  newAttrUnitRecords.value.push(data);
+}
+
+const propertyUnitModalOk = async () => {
+  const keyIds = propertyUnitTableRef.value.selectedKeysHandler();
+  console.log(keyIds)
+  if (!keyIds || keyIds.length === 0) {
+    Message.warning('没有选择属性数据！');
+  } else {
+    keyIds.forEach((item) => {
+      const find = formData.value.attrUnitRecords?.find((attrUnit) => attrUnit.attrId === item);
+      if (!!find) {
+        Message.error(`属性[${find.attrName}]已添加!`)
+      } else {
+        addNewAttrUnit(item);
+      }
+    })
+  }
+  modalCancel();
+}
+
+const modalCancel = () => {
+  attrUnitModalShow.value = false;
+}
 
 const columns = computed<TableColumnData[]>(() => [
   {
     title: '属性ID',
-    dataIndex: 'unitKeyId',
+    dataIndex: 'attrId',
   },
   {
     title: '属性名称',
-    dataIndex: 'unitKeyName',
+    dataIndex: 'attrName',
   },
   {
     title: '属性单位',
-    dataIndex: 'unitKeyUnit',
+    dataIndex: 'unit',
   },
   {
     title: '表单展示方式',
@@ -227,11 +213,11 @@ const columns = computed<TableColumnData[]>(() => [
   },
   {
     title: '属性值',
-    dataIndex: 'propertyUnitValues',
+    dataIndex: 'attrUnitValues',
     render: (data) => {
-      if (data.record.propertyUnitValues) {
-        return data.record.propertyUnitValues
-            .map((item: { unitValue: string }) => item.unitValue)
+      if (data.record.attrUnitValues) {
+        return data.record.attrUnitValues
+            .map((item: { attrValueName: string }) => item.attrValueName)
             .join(', ');
       }
       return '';
@@ -244,72 +230,48 @@ const columns = computed<TableColumnData[]>(() => [
   },
 ]);
 
-const fetchData = async (
-    params: PropertyUnitSearchParam = {current: 1, pageSize: 10}
-) => {
-  setLoading(true);
-  try {
-    const {data} = await queryPropertyUnitList(params);
-    propertyStoreData.value = data.records;
-    pagination.current = params.current;
-    pagination.total = data.total;
-  } catch (err) {
-    // you can report use errorHandler or other
-  } finally {
-    setLoading(false);
-  }
-};
-
-const search = () => {
-  fetchData({
-    ...basePagination,
-    propertyKeyName: propertySearchName.value,
-  } as unknown as PropertyUnitSearchParam);
-};
-
-const onPageChange = (current: number) => {
-  fetchData({
-    ...basePagination,
-    current,
-  } as unknown as PropertyUnitSearchParam);
-};
-
 const reset = () => {
-  formData.value = generateFormModel();
+  formData.value = {};
 };
 
-const handleSubmit = async () => {
-  if (
-      !formData.value.propertyUnitKeys ||
-      formData.value.propertyUnitKeys.length === 0
-  ) {
-    Modal.error({
-      title: '属性组属性列表为空！',
-      content: `请添加属性！`,
-    });
+const unBindAttrUnit = async (attrId: string) => {
+  if (!attrId) {
     return;
   }
+  try {
+    const {msg} = await unBindAttrUnitByAttrId({groupId: formData.value.groupId, attrId});
+    const {data} = await getBindAttrUnitByGroupId({groupId: formData.value.groupId});
+    formData.value.attrUnitRecords = data;
+    Message.info(msg)
+  } catch (err) {
+    // ddd
+  }
+}
 
+const handleSubmit = async () => {
   setLoading(true);
   try {
-    const params = formData.value;
+    const params: AttrGroupCreate = {
+      groupName: formData.value.groupName,
+      attrIds: newAttrUnitRecords.value.map((item) => item.attrId) as []
+    };
 
     if (action.value === '2') {
-      const {propertyGroupId} = route.params;
-      params.propertyGroupId = propertyGroupId as string;
+      const {groupId} = route.params;
+      params.groupId = groupId as string;
     }
 
     if (action.value === '0') {
-      const result = await createPropertyGroup(params);
-      // await router.push({
-      //   name: 'PropertyGroupList',
-      // });
+      const result = await createAttrGroup(params);
+      await router.push({
+        name: 'AttrGroup',
+      });
       Message.info(result.msg);
     } else if (action.value === '2') {
-      const result = await editPropertyGroup(params);
-      // await router.push({
-      //   name: 'PropertyGroupList',
-      // });
+      const result = await updateAttrGroup(params);
+      await router.push({
+        name: 'AttrGroup',
+      });
       Message.info(result.msg);
     }
   } catch (err) {
@@ -321,7 +283,7 @@ const handleSubmit = async () => {
 
 const init = async () => {
   // actionType: 0-create, 1-view, 2-edit, 3-audit
-  const {propertyGroupId} = route.params;
+  const {groupId} = route.params;
   const {actionType} = route.query;
   action.value = actionType as string;
   readonly.value = (actionType as string) === '1';
@@ -342,10 +304,10 @@ const init = async () => {
   if (action.value === '1' || action.value === '2') {
     setLoading(true);
     try {
-      const params: PropertyGroupRecord = {
-        propertyGroupId: propertyGroupId as string,
+      const params: AttrGroupRecord = {
+        groupId: groupId as string,
       };
-      const {data} = await queryPropertyGroupDetail(params);
+      const {data} = await queryAttrGroupDetail(params);
       formData.value = data;
     } catch (err) {
       // you can report use errorHandler or other
