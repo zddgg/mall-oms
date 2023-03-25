@@ -170,8 +170,7 @@ const LIST: AppRouteRecordRaw = {
       ],
     },
     {
-      path: 'property',
-      name: 'Property',
+      path: 'attr',
       component: PAGE_LAYOUT,
       meta: {
         locale: 'menu.product.property',
@@ -181,8 +180,8 @@ const LIST: AppRouteRecordRaw = {
       children: [
         {
           path: 'unit',
-          name: 'PropertyUnit',
-          component: () => import('@/views/product/property/unit/index.vue'),
+          name: 'AttrUnit',
+          component: () => import('@/views/product/attr/unit/index.vue'),
           meta: {
             locale: 'menu.product.property.unit',
             requiresAuth: true,
@@ -191,10 +190,10 @@ const LIST: AppRouteRecordRaw = {
         },
         {
           path: 'unit/create',
-          name: 'PropertyUnitCreate',
+          name: 'AttrUnitCreate',
           component: () =>
             import(
-              '@/views/product/property/unit/components/propertyUnitDetail.vue'
+              '@/views/product/attr/unit/components/detail.vue'
             ),
           meta: {
             requiresAuth: true,
@@ -203,11 +202,11 @@ const LIST: AppRouteRecordRaw = {
           },
         },
         {
-          path: 'unit/:unitKeyId',
-          name: 'PropertyUnitDetail',
+          path: 'unit/:attrId',
+          name: 'AttrUnitDetail',
           component: () =>
             import(
-              '@/views/product/property/unit/components/propertyUnitDetail.vue'
+              '@/views/product/attr/unit/components/detail.vue'
             ),
           meta: {
             requiresAuth: true,
