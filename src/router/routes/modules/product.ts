@@ -34,7 +34,6 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'spu/create',
           name: 'SpuCreate',
-          // component: () => import('@/views/product/goods/spu/detail/spuCreate.vue'),
           component: () => import('@/views/product/goods/create/index.vue'),
           meta: {
             requiresAuth: true,
@@ -252,8 +251,8 @@ const LIST: AppRouteRecordRaw = {
         },
         {
           path: 'sale',
-          name: 'PropertySale',
-          component: () => import('@/views/product/property/sale/index.vue'),
+          name: 'AttrSale',
+          component: () => import('@/views/product/attr/sale/index.vue'),
           meta: {
             locale: 'menu.product.property.sale',
             requiresAuth: true,
@@ -262,10 +261,10 @@ const LIST: AppRouteRecordRaw = {
         },
         {
           path: 'sale/create',
-          name: 'PropertySaleCreate',
+          name: 'AttrSaleCreate',
           component: () =>
               import(
-                  '@/views/product/property/sale/components/propertySaleCreate.vue'
+                  '@/views/product/attr/sale/components/create.vue'
                   ),
           meta: {
             requiresAuth: true,
@@ -274,11 +273,11 @@ const LIST: AppRouteRecordRaw = {
           },
         },
         {
-          path: 'sale/:keyId',
-          name: 'PropertySaleDetail',
+          path: 'sale/:attrId',
+          name: 'AttrSaleDetail',
           component: () =>
               import(
-                  '@/views/product/property/sale/components/propertySaleDetail.vue'
+                  '@/views/product/attr/sale/components/detail.vue'
                   ),
           meta: {
             requiresAuth: true,
