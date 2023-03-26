@@ -11,10 +11,19 @@
           >
             <a-row :gutter="16">
               <a-col :span="8">
-                <a-form-item field="keyName" label="销售属性名称">
+                <a-form-item field="attrId" label="属性编号">
                   <a-input
-                      v-model="searchFormModel.keyName"
-                      placeholder="请输入销售属性名称"
+                      v-model="searchFormModel.attrId"
+                      placeholder="请输入属性编号"
+                      allow-clear
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="attrName" label="属性名称">
+                  <a-input
+                      v-model="searchFormModel.attrName"
+                      placeholder="请输入属性名称"
                       allow-clear
                   />
                 </a-form-item>
@@ -46,15 +55,12 @@
           <a-space>
             <a-button
                 type="primary"
-                @click="
-                () =>
-                  router.push({
-                    name: 'PropertySaleCreate',
-                    query: {
-                      actionType: '0',
-                    },
-                  })
-              "
+                @click="router.push({
+                  name: 'AttrSaleCreate',
+                  query: {
+                    actionType: '0',
+                  },
+                })"
             >
               <template #icon>
                 <icon-plus/>
@@ -74,10 +80,10 @@
           :size="size"
           @page-change="onPageChange"
       >
-        <template #propertySaleValues="{ record }">
+        <template #attrSaleValues="{ record }">
           <a-space>
-            <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
-              {{ item.valueName }}
+            <a-tag v-for="(item, index) in record.attrSaleValues" :key="index">
+              {{ item.attrValueName }}
             </a-tag>
           </a-space>
         </template>
@@ -91,37 +97,29 @@
           <a-space>
             <a-button
                 size="small"
-                @click="
-                () => {
-                  router.push({
-                    name: 'PropertySaleDetail',
-                    params: {
-                      keyId: record.keyId,
-                    },
-                    query: {
-                      actionType: '1',
-                    },
-                  });
-                }
-              "
+                @click="router.push({
+                  name: 'AttrSaleDetail',
+                  params: {
+                    attrId: record.attrId,
+                  },
+                  query: {
+                    actionType: '1',
+                  },
+                })"
             >
               查看
             </a-button>
             <a-button
                 size="small"
-                @click="
-                () => {
-                  router.push({
-                    name: 'PropertySaleDetail',
+                @click="router.push({
+                  name: 'AttrSaleDetail',
                     params: {
-                      keyId: record.keyId,
+                      attrId: record.attrId,
                     },
                     query: {
                       actionType: '2',
                     },
-                  });
-                }
-              "
+                })"
             >
               编辑
             </a-button>
@@ -141,15 +139,9 @@ import useLoading from '@/hooks/loading';
 import {Pagination} from '@/types/global';
 import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
 import {useRouter} from 'vue-router';
-import {
-  deleteSaleByKeyId,
-  PropertySaleRecord,
-  PropertySaleSearchParam,
-  PropertyUnitSearchParam,
-  queryPropertySaleList
-} from '@/api/product/property';
+import {AttrSaleRecord, AttrSaleSearchParam, deleteAttrSaleByAttrId, queryAttrSalePage,} from '@/api/product/property';
 import {TableData} from '@arco-design/web-vue/es/table/interface.d';
-import {Modal} from "@arco-design/web-vue";
+import {Message, Modal} from "@arco-design/web-vue";
 
 const router = useRouter();
 
@@ -157,8 +149,8 @@ type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
 const {loading, setLoading} = useLoading(false);
 
-const renderData = ref<PropertySaleRecord[] | undefined>([]);
-const searchFormModel = ref<PropertySaleRecord>({} as PropertySaleRecord);
+const renderData = ref<AttrSaleRecord[] | undefined>([]);
+const searchFormModel = ref<AttrSaleRecord>({} as AttrSaleRecord);
 
 const size = ref<SizeProps>('medium');
 
@@ -172,16 +164,16 @@ const pagination = reactive({
 const columns = computed<TableColumnData[]>(() => [
   {
     title: '属性ID',
-    dataIndex: 'keyId',
+    dataIndex: 'attrId',
   },
   {
     title: '属性名称',
-    dataIndex: 'keyName',
+    dataIndex: 'attrName',
   },
   {
     title: '属性值',
-    dataIndex: 'propertySaleValues',
-    slotName: 'propertySaleValues',
+    dataIndex: 'attrSaleValues',
+    slotName: 'attrSaleValues',
   },
   {
     title: '状态',
@@ -195,11 +187,11 @@ const columns = computed<TableColumnData[]>(() => [
   },
 ]);
 const fetchData = async (
-    params: PropertySaleSearchParam = {current: 1, pageSize: 20}
+    params: AttrSaleSearchParam = {current: 1, pageSize: 20}
 ) => {
   setLoading(true);
   try {
-    const {data} = await queryPropertySaleList(params);
+    const {data} = await queryAttrSalePage(params);
     renderData.value = data.records;
     pagination.current = params.current;
     pagination.total = data.total;
@@ -214,17 +206,17 @@ const search = () => {
   fetchData({
     ...basePagination,
     ...searchFormModel.value,
-  } as unknown as PropertyUnitSearchParam);
+  } as unknown as AttrSaleSearchParam);
 };
 const onPageChange = (current: number) => {
   fetchData({
     ...basePagination,
     current,
-  } as unknown as PropertyUnitSearchParam);
+  } as unknown as AttrSaleSearchParam);
 };
 
 const reset = () => {
-  searchFormModel.value = {} as PropertySaleRecord;
+  searchFormModel.value = {} as AttrSaleRecord;
 };
 
 const deleteCategoryStore = (record: TableData) => {
@@ -233,9 +225,10 @@ const deleteCategoryStore = (record: TableData) => {
     content: '确认删除？？？',
     onOk: async () => {
       const params = {
-        keyId: record.keyId,
-      } as PropertySaleRecord;
-      await deleteSaleByKeyId(params);
+        attrId: record.attrId,
+      } as AttrSaleRecord;
+      const {msg} = await deleteAttrSaleByAttrId(params);
+      Message.info(msg);
       search();
     },
   });

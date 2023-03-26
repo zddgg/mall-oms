@@ -4,27 +4,27 @@
       <a-card class="general-card" title="基础信息">
         <a-form
             ref="formRef"
-            :model="propertySaleKeyData"
+            :model="formData"
             :label-col-props="{ span: 6 }"
             :wrapper-col-props="{ span: 18 }"
             style="width: 800px"
             @submit-success="handleSubmit"
         >
           <a-form-item
-              field="keyName"
+              field="attrName"
               label="销售属性名称"
               show-colon
-              :rules="[{ required: !readonly, message: 'name is required' }]"
+              :rules="[{ required: !readonly, message: '请输入销售属性名称' }]"
           >
             <a-input
                 v-if="!readonly"
-                v-model="propertySaleKeyData.keyName"
-                placeholder="请输入类目名称"
+                v-model="formData.attrName"
+                placeholder="请输入销售属性名称"
                 style="width: 80%"
             />
-            <span v-else>{{ propertySaleKeyData.keyName }}</span>
+            <span v-else>{{ formData.attrName }}</span>
           </a-form-item>
-          <div class="actions">
+          <div class="actions" v-if="!readonly">
             <a-space>
               <a-button type="primary" html-type="submit" :loading="loading">
                 提交
@@ -37,15 +37,12 @@
       <a-card class="general-card" title="属性值">
         <a-table
             :columns="showColumns"
-            :data="propertySaleValueData"
+            :data="formData.attrSaleValues"
             size="medium"
             :pagination="false"
         >
           <template #index="{ rowIndex }">
             <span>{{ rowIndex }}</span>
-          </template>
-          <template #desc="{ rowIndex }">
-            <span>{{ rowIndex === 0 ? '选中' : '未选中' }}</span>
           </template>
           <template #operations="{ record}">
             <a-space>
@@ -58,7 +55,7 @@
             </a-space>
           </template>
         </a-table>
-        <div style="margin-top: 20px">
+        <div v-if="!readonly" style="margin-top: 20px">
           <div v-if="showAddAttrBtn">
             <a-button
                 type="primary"
@@ -89,14 +86,11 @@ import {FormInstance} from '@arco-design/web-vue/es/form';
 import {Message, Modal} from '@arco-design/web-vue';
 import {useRoute, useRouter} from 'vue-router';
 import {
-  addValue,
+  addAttrValueByAttrId,
+  AttrSaleRecord,
   deleteValue,
-  editKey,
-  PropertySaleKey,
-  PropertySaleRecord,
-  PropertySaleValue,
-  queryKeyDetail,
-  queryValueList
+  queryAttrSaleDetail,
+  queryValueList, updateKeyInfo
 } from '@/api/product/property';
 import {TableColumnData, TableData} from '@arco-design/web-vue/es/table/interface';
 import cloneDeep from 'lodash/cloneDeep';
@@ -113,8 +107,7 @@ const action = ref<string | string[]>('');
 const readonly = ref<boolean>(true);
 const showAddAttrBtn = ref<Boolean>(true);
 const newAttrName = ref<String>('')
-const propertySaleKeyData = ref<PropertySaleKey>({} as PropertySaleKey);
-const propertySaleValueData = ref<PropertySaleValue[]>([]);
+const formData = ref<AttrSaleRecord>({} as AttrSaleRecord);
 
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -124,13 +117,11 @@ const columns = computed<TableColumnData[]>(() => [
   },
   {
     title: '属性值编号',
-    dataIndex: 'valueId',
-    slotName: 'valueId',
+    dataIndex: 'attrValueId',
   },
   {
     title: '属性值名称',
-    dataIndex: 'valueName',
-    slotName: 'valueName',
+    dataIndex: 'attrValueName',
   },
   {
     title: '操作',
@@ -148,7 +139,7 @@ const {loading, setLoading} = useLoading(false);
 
 const cancel = () => {
   router.push({
-    name: 'PropertySale',
+    name: 'AttrSale',
   });
 };
 
@@ -156,11 +147,11 @@ const handleSubmit = async () => {
   setLoading(true);
   try {
     if (action.value === '2') {
-      const result = await editKey(propertySaleKeyData.value);
+      const {msg} = await updateKeyInfo(formData.value);
+      Message.info(msg);
       await router.push({
-        name: 'PropertySale',
+        name: 'AttrSale',
       });
-      Message.info(result.msg);
     }
   } catch (err) {
     // you can report use errorHandler or other
@@ -174,10 +165,10 @@ const addAttrValue = async () => {
     setLoading(true);
     try {
       const params = {
-        keyId: propertySaleKeyData.value.keyId as string,
-        valueName: newAttrName.value as string
+        attrId: formData.value.attrId as string,
+        attrValueName: newAttrName.value as string
       }
-      const {msg} = await addValue(params)
+      const {msg} = await addAttrValueByAttrId(params)
       newAttrName.value = ''
       Message.info(msg);
       showAddAttrBtn.value = true;
@@ -193,10 +184,10 @@ const addAttrValue = async () => {
 const deleteAttrValue = async (record: TableData) => {
   Modal.confirm(
       {
-        title: `确认删除 [${record.valueName}]？`,
+        title: `确认删除 [${record.attrValueName}]？`,
         content: '确认删除？？？',
         onOk: async () => {
-          const params = {keyId: record.keyId, valueId: record.valueId};
+          const params = {attrId: record.attrId, attrValueId: record.attrValueId};
           const {msg} = await deleteValue(params);
           Message.info(msg)
           await refreshAttrValueList();
@@ -207,15 +198,15 @@ const deleteAttrValue = async (record: TableData) => {
 
 const refreshAttrValueList = async () => {
   const params = {
-    keyId: propertySaleKeyData.value.keyId as string
+    attrId: formData.value.attrId as string
   }
-  const valueList = await queryValueList(params);
-  propertySaleValueData.value = valueList.data
+  const {data} = await queryValueList(params);
+  formData.value.attrSaleValues = data
 }
 
 const init = async () => {
   // actionType: 0-create, 1-view, 2-edit, 3-audit
-  const {keyId} = route.params;
+  const {attrId} = route.params;
   const {actionType} = route.query;
   action.value = actionType as string;
   readonly.value = (actionType as string) === '1';
@@ -228,9 +219,10 @@ const init = async () => {
   if (action.value === '1' || action.value === '2') {
     setLoading(true);
     try {
-      const keyDetail = await queryKeyDetail({keyId: keyId as string});
-      propertySaleKeyData.value = keyDetail.data;
-      await refreshAttrValueList();
+      const {data} = await queryAttrSaleDetail({attrId: attrId as string});
+      console.log(data)
+      formData.value = data;
+      // await refreshAttrValueList();
     } catch (err) {
       // you can report use errorHandler or other
     } finally {

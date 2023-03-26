@@ -166,66 +166,73 @@ export interface PropertySaleRecord {
     propertySaleValues?: PropertySaleValue[]
 }
 
+export interface AttrSaleValue {
+    attrId?: string;
+    attrValueId?: string;
+    attrValueName?: string;
+    attrSaleOrder?: number;
+    status?: string;
+    confirmed?: boolean;
+}
+
+export interface AttrSaleRecord {
+    attrId?: string;
+    attrName?: string;
+    status?: string;
+    attrSaleValues?: AttrSaleValue[]
+}
+
+export interface AttrSaleCreate {
+    attrName: string;
+    attrSaleValues?: { attrValueName: string, confirmed?: boolean }[]
+}
+
 export interface PropertySaleCreate {
     keyName: string;
 }
 
-export interface PropertySaleSearchParam extends Partial<PropertySaleRecord> {
+export interface AttrSaleSearchParam extends Partial<AttrSaleRecord> {
     current: number;
     pageSize: number;
 }
 
-export function queryPropertySaleList(params: PropertySaleSearchParam) {
-    return axios.post<HttpResponse<PaginationRes<PropertySaleRecord>>>(
-        '/api/property/sale/list',
+export function queryAttrSalePage(params: AttrSaleSearchParam) {
+    return axios.post<HttpResponse<PaginationRes<AttrSaleRecord>>>(
+        '/api/attr/sale/page',
         params
     );
 }
 
-export function queryPropertySaleByCategoryId(params: { categoryId: string | undefined }) {
-    return axios.post<HttpResponse<PropertySaleRecord[]>>(
-        '/api/property/sale/queryByCategoryId',
+export function createAttrSale(params: AttrSaleCreate) {
+    return axios.post<HttpResponse>('/api/attr/sale/create', params);
+}
+
+export function queryAttrSaleDetail(params: AttrSaleRecord) {
+    return axios.post<HttpResponse<AttrSaleRecord>>(
+        '/api/attr/sale/detail',
         params
     );
 }
 
-export function createPropertySale(params: PropertySaleCreate) {
-    return axios.post<HttpResponse>('/api/property/sale/create', params);
-}
-
-export function queryPropertySaleDetail(params: PropertySaleRecord) {
-    return axios.post<HttpResponse<PropertySaleRecord>>(
-        '/api/property/sale/detail',
+export function queryValueList(params: { attrId: string }) {
+    return axios.post<HttpResponse<AttrSaleValue[]>>(
+        '/api/attr/sale/value/list',
         params
     );
 }
 
-export function queryKeyDetail(params: { keyId: string }) {
-    return axios.post<HttpResponse<PropertySaleKey>>(
-        '/api/property/sale/key/detail',
-        params
-    );
+export function updateKeyInfo(params: AttrSaleRecord) {
+    return axios.post<HttpResponse>('/api/attr/sale/key/update', params);
 }
 
-export function queryValueList(params: { keyId: string }) {
-    return axios.post<HttpResponse<PropertySaleValue[]>>(
-        '/api/property/sale/value/list',
-        params
-    );
+export function deleteAttrSaleByAttrId(params: AttrSaleRecord) {
+    return axios.post<HttpResponse>('/api/attr/sale/delete', params);
 }
 
-export function editKey(params: PropertySaleRecord) {
-    return axios.post<HttpResponse>('/api/property/sale/key/edit', params);
+export function deleteValue(params: { attrId: string, attrValueId: string }) {
+    return axios.post<HttpResponse>('/api/attr/sale/deleteValue', params);
 }
 
-export function deleteSaleByKeyId(params: PropertySaleRecord) {
-    return axios.post<HttpResponse>('/api/property/sale/delete', params);
-}
-
-export function deleteValue(params: { keyId: string, valueId: string }) {
-    return axios.post<HttpResponse>('/api/property/sale/deleteValue', params);
-}
-
-export function addValue(params: { keyId: string, valueName: string }) {
-    return axios.post<HttpResponse>('/api/property/sale/addValue', params);
+export function addAttrValueByAttrId(params: { attrId: string, attrValueName: string }) {
+    return axios.post<HttpResponse>('/api/attr/sale/addValue', params);
 }
