@@ -10,9 +10,9 @@
         >
           <a-grid :cols="3" :col-gap="20">
             <a-grid-item>
-              <a-form-item field="propertyGroupName" label="属性组名称">
+              <a-form-item field="groupName" label="属性组名称">
                 <a-input
-                    v-model="searchFormModel.propertyGroupName"
+                    v-model="searchFormModel.groupName"
                     placeholder="请输入SPU编号"
                     allow-clear
                 />
@@ -40,7 +40,7 @@
         </a-form>
       </a-row>
       <a-table
-          row-key="propertyGroupId"
+          row-key="groupId"
           :loading="loading"
           :pagination="pagination"
           :columns="propertyGroupColumns"
@@ -51,10 +51,10 @@
           v-model:selected-keys="selectedKeys"
           @page-change="onPageChange"
       >
-        <template #relatedProperty="{ record }">
+        <template #relatedAttr="{ record }">
           <a-popover trigger="click">
             <a-button size="small">
-              {{ `数量 ${record.propertyUnitKeys.length}` }}
+              {{ `数量 ${record.attrUnitRecords.length}` }}
             </a-button>
             <template #content>
               <a-table
@@ -91,14 +91,14 @@ import {Pagination} from '@/types/global';
 import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
 import {TableData, TableRowSelection} from '@arco-design/web-vue/es/table/interface';
 import {useRouter} from 'vue-router';
-import {PropertyGroupRecord, PropertyGroupSearchParam, queryPropertyGroupList,} from '@/api/product/property';
 import {EnumResp, queryEnum} from '@/api/common/enum';
+import {AttrGroupRecord, AttrGroupSearchParam, queryAttrGroupPage} from "@/api/product/property";
 
 const router = useRouter();
 const {loading, setLoading} = useLoading(false);
 
-const renderData = ref<PropertyGroupRecord[] | undefined>([]);
-const searchFormModel = ref({} as PropertyGroupRecord);
+const renderData = ref<AttrGroupRecord[] | undefined>([]);
+const searchFormModel = ref({} as AttrGroupRecord);
 const formShowTypeOptions = ref<EnumResp[]>([]);
 
 
@@ -117,15 +117,15 @@ const pagination = reactive({
 const propertyGroupColumns = computed<TableColumnData[]>(() => [
   {
     title: '属性组ID',
-    dataIndex: 'propertyGroupId',
+    dataIndex: 'groupId',
   },
   {
     title: '属性组名称',
-    dataIndex: 'propertyGroupName',
+    dataIndex: 'groupName',
   },
   {
     title: '已关联属性',
-    slotName: 'relatedProperty',
+    slotName: 'relatedAttr',
   },
   {
     title: '状态',
@@ -142,15 +142,15 @@ const propertyGroupColumns = computed<TableColumnData[]>(() => [
 const propertyUnitColumns = computed<TableColumnData[]>(() => [
   {
     title: '属性ID',
-    dataIndex: 'unitKeyId',
+    dataIndex: 'attrId',
   },
   {
     title: '属性名称',
-    dataIndex: 'unitKeyName',
+    dataIndex: 'attrName',
   },
   {
     title: '属性单位',
-    dataIndex: 'unitKeyUnit',
+    dataIndex: 'unit',
   },
   {
     title: '表单展示方式',
@@ -169,11 +169,11 @@ const propertyUnitColumns = computed<TableColumnData[]>(() => [
   },
   {
     title: '属性值',
-    dataIndex: 'propertyUnitValues',
+    dataIndex: 'attrUnitValues',
     render: (data) => {
-      if (data.record.propertyUnitValues) {
-        return data.record.propertyUnitValues
-            .map((item: { unitValue: string }) => item.unitValue)
+      if (data.record.attrUnitValues) {
+        return data.record.attrUnitValues
+            .map((item: { attrValueName: string }) => item.attrValueName)
             .join(', ');
       }
       return '';
@@ -187,11 +187,11 @@ const propertyUnitColumns = computed<TableColumnData[]>(() => [
 ]);
 
 const fetchData = async (
-    params: PropertyGroupSearchParam = {current: 1, pageSize: 20}
+    params: AttrGroupSearchParam = {current: 1, pageSize: 20}
 ) => {
   setLoading(true);
   try {
-    const {data} = await queryPropertyGroupList(params);
+    const {data} = await queryAttrGroupPage(params);
     renderData.value = data.records;
     pagination.current = params.current;
     pagination.total = data.total;
@@ -206,17 +206,17 @@ const search = () => {
   fetchData({
     ...basePagination,
     ...searchFormModel.value,
-  } as unknown as PropertyGroupSearchParam);
+  } as unknown as AttrGroupSearchParam);
 };
 const onPageChange = (current: number) => {
   fetchData({
     ...basePagination,
     current,
-  } as unknown as PropertyGroupSearchParam);
+  } as unknown as AttrGroupSearchParam);
 };
 
 const reset = () => {
-  searchFormModel.value = {} as PropertyGroupRecord;
+  searchFormModel.value = {} as AttrGroupRecord;
 };
 
 const init = async () => {

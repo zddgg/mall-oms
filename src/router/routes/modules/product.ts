@@ -138,7 +138,7 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'backend/create',
           name: 'BackendCategoryCreate',
-          component: () => import('@/views/product/category/backend/components/backendCategoryDetail.vue'),
+          component: () => import('@/views/product/category/backend/components/create.vue'),
           meta: {
             requiresAuth: true,
             roles: ['*'],
@@ -148,7 +148,7 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'backend/:categoryId',
           name: 'BackendCategoryDetail',
-          component: () => import('@/views/product/category/backend/components/backendCategoryDetail.vue'),
+          component: () => import('@/views/product/category/backend/components/detail.vue'),
           meta: {
             requiresAuth: true,
             roles: ['*'],

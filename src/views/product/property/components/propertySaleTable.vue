@@ -10,9 +10,9 @@
         >
           <a-grid :cols="3" :col-gap="20">
             <a-grid-item>
-              <a-form-item field="keyName" label="销售属性名称">
+              <a-form-item field="attrName" label="销售属性名称">
                 <a-input
-                    v-model="searchFormModel.keyName"
+                    v-model="searchFormModel.attrName"
                     placeholder="请输入销售属性名称"
                     allow-clear
                 />
@@ -41,7 +41,7 @@
       </a-row>
       <a-divider style="margin-top: 20px"/>
       <a-table
-          row-key="keyId"
+          row-key="attrId"
           :loading="loading"
           :pagination="pagination"
           :columns="columns"
@@ -52,10 +52,10 @@
           v-model:selected-keys="selectedKeys"
           @page-change="onPageChange"
       >
-        <template #propertySaleValues="{record}">
+        <template #attrSaleValues="{record}">
           <a-space>
-            <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
-              {{ item.valueName }}
+            <a-tag v-for="(item, index) in record.attrSaleValues" :key="index">
+              {{ item.attrValueName }}
             </a-tag>
           </a-space>
         </template>
@@ -76,12 +76,7 @@ import {Pagination} from '@/types/global';
 import type {TableColumnData} from '@arco-design/web-vue/es/table/interface';
 import {TableRowSelection} from "@arco-design/web-vue/es/table/interface";
 import {useRouter} from 'vue-router';
-import {
-  PropertySaleRecord,
-  PropertySaleSearchParam,
-  PropertyUnitSearchParam,
-  queryPropertySaleList
-} from '@/api/product/property';
+import {AttrSaleRecord, AttrSaleSearchParam, queryAttrSalePage} from "@/api/product/property";
 
 const router = useRouter();
 const {loading, setLoading} = useLoading(false);
@@ -101,8 +96,8 @@ const props = defineProps({
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 const size = ref<SizeProps>('medium');
 
-const renderData = ref<PropertySaleRecord[] | undefined>([]);
-const searchFormModel = ref<PropertySaleRecord>({} as PropertySaleRecord);
+const renderData = ref<AttrSaleRecord[] | undefined>([]);
+const searchFormModel = ref<AttrSaleRecord>({} as AttrSaleRecord);
 
 const selectedKeys = ref([]);
 const basePagination: Pagination = {
@@ -115,16 +110,16 @@ const pagination = reactive({
 const columns = computed<TableColumnData[]>(() => [
   {
     title: '属性ID',
-    dataIndex: 'keyId',
+    dataIndex: 'attrId',
   },
   {
     title: '属性名称',
-    dataIndex: 'keyName',
+    dataIndex: 'attrName',
   },
   {
     title: '属性值',
-    dataIndex: 'propertySaleValues',
-    slotName: 'propertySaleValues',
+    dataIndex: 'attrSaleValues',
+    slotName: 'attrSaleValues',
   },
   {
     title: '状态',
@@ -138,11 +133,11 @@ const columns = computed<TableColumnData[]>(() => [
   },
 ]);
 const fetchData = async (
-    params: PropertySaleSearchParam = {current: 1, pageSize: 10}
+    params: AttrSaleSearchParam = {current: 1, pageSize: 10}
 ) => {
   setLoading(true);
   try {
-    const {data} = await queryPropertySaleList(params);
+    const {data} = await queryAttrSalePage(params);
     renderData.value = data.records;
     pagination.current = params.current;
     pagination.total = data.total;
@@ -157,17 +152,17 @@ const search = () => {
   fetchData({
     ...basePagination,
     ...searchFormModel.value,
-  } as unknown as PropertyUnitSearchParam);
+  } as unknown as AttrSaleSearchParam);
 };
 const onPageChange = (current: number) => {
   fetchData({
     ...basePagination,
     current,
-  } as unknown as PropertyUnitSearchParam);
+  } as unknown as AttrSaleSearchParam);
 };
 
 const reset = () => {
-  searchFormModel.value = {} as PropertySaleRecord;
+  searchFormModel.value = {} as AttrSaleRecord;
 };
 
 const selectedKeysHandler = () => {

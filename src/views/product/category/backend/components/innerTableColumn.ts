@@ -1,16 +1,16 @@
 export const propertyUnitColumns = [
     {
         title: '属性ID',
-        dataIndex: 'unitKeyId',
+        dataIndex: 'attrId',
         slotName: 'id'
     },
     {
         title: '属性名称',
-        dataIndex: 'unitKeyName',
+        dataIndex: 'attrName',
     },
     {
         title: '属性单位',
-        dataIndex: 'unitKeyUnit',
+        dataIndex: 'unit',
     },
     {
         title: '表单展示方式',
@@ -19,7 +19,7 @@ export const propertyUnitColumns = [
     },
     {
         title: '属性值',
-        dataIndex: 'propertyUnitValues',
+        dataIndex: 'attrUnitValues',
     },
     {
         title: '状态',
@@ -36,16 +36,16 @@ export const propertyUnitColumns = [
 export const propertyGroupColumns = [
     {
         title: '属性组ID',
-        dataIndex: 'propertyGroupId',
+        dataIndex: 'groupId',
         slotName: 'id'
     },
     {
         title: '属性组名称',
-        dataIndex: 'propertyGroupName',
+        dataIndex: 'groupName',
     },
     {
         title: '已关联属性',
-        slotName: 'relatedProperty',
+        slotName: 'relatedAttr',
     },
     {
         title: '状态',
@@ -62,17 +62,17 @@ export const propertyGroupColumns = [
 export const propertySaleColumns = [
     {
         title: '属性ID',
-        dataIndex: 'keyId',
+        dataIndex: 'attrId',
         slotName: 'id'
     },
     {
         title: '属性名称',
-        dataIndex: 'keyName',
+        dataIndex: 'attrName',
     },
     {
         title: '属性值',
-        dataIndex: 'propertySaleValues',
-        slotName: 'propertySaleValues'
+        dataIndex: 'attrSaleValues',
+        slotName: 'attrSaleValues'
     },
     {
         title: '状态',
