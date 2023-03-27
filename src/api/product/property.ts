@@ -48,18 +48,6 @@ export function deleteByAttrId(params: AttrUnitRecord) {
     return axios.post<HttpResponse>('/api/attr/unit/delete', params);
 }
 
-export interface PropertyGroupRecord {
-    id?: string;
-    creator?: string;
-    created?: string;
-    updater?: string;
-    updated?: string;
-    propertyGroupId?: string;
-    propertyGroupName?: string;
-    status?: string;
-    propertyUnitKeys?: PropertyUnitRecord[]
-}
-
 export interface AttrGroupRecord {
     groupId?: string;
     groupName?: string;
@@ -68,11 +56,6 @@ export interface AttrGroupRecord {
 }
 
 export interface AttrGroupSearchParam extends Partial<AttrGroupRecord> {
-    current: number;
-    pageSize: number;
-}
-
-export interface PropertyGroupSearchParam extends Partial<PropertyGroupRecord> {
     current: number;
     pageSize: number;
 }
@@ -86,13 +69,6 @@ export interface AttrGroupCreate {
 export interface AttrGroupUnit {
     groupId?: string;
     attrId?: string;
-}
-
-export function queryPropertyGroupList(params: PropertyGroupSearchParam) {
-    return axios.post<HttpResponse<PaginationRes<PropertyGroupRecord>>>(
-        '/api/property/group/list',
-        params
-    );
 }
 
 export function queryAttrGroupPage(params: AttrGroupSearchParam) {
@@ -129,43 +105,6 @@ export function getBindAttrUnitByGroupId(params: AttrGroupUnit) {
     return axios.post<HttpResponse<AttrUnitRecord[]>>('/api/attr/group/getBindAttrUnit', params);
 }
 
-export interface PropertySaleValue {
-    id?: string;
-    creator?: string;
-    created?: string;
-    updater?: string;
-    updated?: string;
-    keyId?: string;
-    valueId?: string;
-    valueName?: string;
-    propertyOrder?: number;
-    status?: string;
-    confirmed?: boolean;
-}
-
-export interface PropertySaleKey {
-    id?: string;
-    creator?: string;
-    created?: string;
-    updater?: string;
-    updated?: string;
-    keyId?: string;
-    keyName?: string;
-    status?: string;
-}
-
-export interface PropertySaleRecord {
-    id?: string;
-    creator?: string;
-    created?: string;
-    updater?: string;
-    updated?: string;
-    keyId?: string;
-    keyName?: string;
-    status?: string;
-    propertySaleValues?: PropertySaleValue[]
-}
-
 export interface AttrSaleValue {
     attrId?: string;
     attrValueId?: string;
@@ -185,10 +124,6 @@ export interface AttrSaleRecord {
 export interface AttrSaleCreate {
     attrName: string;
     attrSaleValues?: { attrValueName: string, confirmed?: boolean }[]
-}
-
-export interface PropertySaleCreate {
-    keyName: string;
 }
 
 export interface AttrSaleSearchParam extends Partial<AttrSaleRecord> {

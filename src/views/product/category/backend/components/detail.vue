@@ -132,14 +132,14 @@
             </div>
           </template>
           <a-table
-              v-if="propertyUnitList && propertyUnitList.length !== 0"
+              v-if="attrUnitList && attrUnitList.length !== 0"
               :columns="propertyUnitColumns"
-              :data="propertyUnitList"
+              :data="attrUnitList"
           >
             <template #id="{ record }">
               <div style="display: flex">
                 <div>
-                  <span>{{ record.unitKeyId }}</span>
+                  <span>{{ record.attrId }}</span>
                 </div>
                 <div v-if="isNewUnit(record.unitKeyId)" style="margin-left: 10px">
                   <a-tag color="#165dff">新添加</a-tag>
@@ -151,7 +151,7 @@
                 <a-button
                     v-if="!readonly"
                     type="primary" status="danger"
-                    @click="propertyUnitList.splice(rowIndex, 1)"
+                    @click="attrUnitList.splice(rowIndex, 1)"
                 >
                   删除
                 </a-button>
@@ -176,31 +176,31 @@
             </div>
           </template>
           <a-table
-              v-if="propertyGroupList && propertyGroupList.length !== 0"
+              v-if="attrGroupList && attrGroupList.length !== 0"
               :columns="propertyGroupColumns"
-              :data="propertyGroupList"
+              :data="attrGroupList"
           >
             <template #id="{ record }">
               <div style="display: flex">
                 <div>
-                  <span>{{ record.propertyGroupId }}</span>
+                  <span>{{ record.groupId }}</span>
                 </div>
-                <div v-if="isNewGroup(record.propertyGroupId)" style="margin-left: 10px">
+                <div v-if="isNewGroup(record.groupId)" style="margin-left: 10px">
                   <a-tag color="#165dff">新添加</a-tag>
                 </div>
               </div>
             </template>
-            <template #relatedProperty="{ record }">
+            <template #relatedAttr="{ record }">
               <a-popover trigger="click">
                 <a-button size="small">
-                  {{ `数量 ${record.propertyUnitKeys.length}` }}
+                  {{ `数量 ${record.attrUnitRecords.length}` }}
                 </a-button>
                 <template #content>
                   <a-table
                       row-key="id"
                       :pagination="false"
                       :columns="propertyUnitColumns"
-                      :data="record.propertyUnitKeys"
+                      :data="record.attrUnitRecords"
                       :bordered="false"
                       :size="'medium'"
                   >
@@ -218,7 +218,7 @@
                 <a-button
                     v-if="!readonly"
                     type="primary" status="danger"
-                    @click="propertyGroupList.splice(rowIndex, 1)"
+                    @click="attrGroupList.splice(rowIndex, 1)"
                 >删除
                 </a-button>
               </a-space>
@@ -242,24 +242,24 @@
             </div>
           </template>
           <a-table
-              v-if="propertySaleList && propertySaleList.length !== 0"
+              v-if="attrSaleList && attrSaleList.length !== 0"
               :columns="propertySaleColumns"
-              :data="propertySaleList"
+              :data="attrSaleList"
           >
             <template #id="{ record }">
               <div style="display: flex">
                 <div>
-                  <span>{{ record.keyId }}</span>
+                  <span>{{ record.attrId }}</span>
                 </div>
-                <div v-if="isNewSale(record.keyId)" style="margin-left: 10px">
+                <div v-if="isNewSale(record.attrId)" style="margin-left: 10px">
                   <a-tag color="#165dff">新添加</a-tag>
                 </div>
               </div>
             </template>
-            <template #propertySaleValues="{record}">
+            <template #attrSaleValues="{record}">
               <a-space>
-                <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
-                  {{ item.valueName }}
+                <a-tag v-for="(item, index) in record.attrSaleValues" :key="index">
+                  {{ item.attrValueName }}
                 </a-tag>
               </a-space>
             </template>
@@ -268,7 +268,7 @@
                 <a-button
                     v-if="!readonly"
                     type="primary" status="danger"
-                    @click="propertySaleList.splice(rowIndex, 1)"
+                    @click="attrSaleList.splice(rowIndex, 1)"
                 >删除
                 </a-button>
               </a-space>
@@ -346,11 +346,11 @@ import {
   propertyUnitColumns,
 } from "@/views/product/category/backend/components/innerTableColumn";
 import {
-  PropertyGroupRecord,
-  PropertySaleRecord,
-  PropertyUnitRecord,
-  queryPropertyGroupDetail,
-  queryPropertyUnitDetail
+  AttrGroupRecord,
+  AttrSaleRecord,
+  AttrUnitRecord,
+  queryAttrGroupDetail,
+  queryAttrUnitDetail,
 } from "@/api/product/property";
 import PropertyUnitTable from "@/views/product/property/components/propertyUnitTable.vue";
 import PropertyGroupTable from "@/views/product/property/components/propertyGroupTable.vue";
@@ -365,14 +365,14 @@ const formRef = ref<FormInstance>();
 const categoryDetail = ref<BackendCategoryDetail>({} as BackendCategoryDetail);
 const parentCategoryDetails = ref<BackendCategoryDetail[]>([]);
 
-const oldUnitList = ref<PropertyUnitRecord[]>([])
-const propertyUnitList = ref<PropertyUnitRecord[]>([])
+const oldUnitList = ref<AttrUnitRecord[]>([])
+const attrUnitList = ref<AttrUnitRecord[]>([])
 
-const oldGroupList = ref<PropertyGroupRecord[]>([])
-const propertyGroupList = ref<PropertyGroupRecord[]>([])
+const oldGroupList = ref<AttrGroupRecord[]>([])
+const attrGroupList = ref<AttrGroupRecord[]>([])
 
-const oldSaleList = ref<PropertySaleRecord[]>([])
-const propertySaleList = ref<PropertySaleRecord[]>([])
+const oldSaleList = ref<AttrSaleRecord[]>([])
+const attrSaleList = ref<AttrSaleRecord[]>([])
 
 const propertyUnitTableRef = ref({
   selectedKeysHandler: () => [],
@@ -391,16 +391,16 @@ const propertyGroupModalShow = ref(false);
 const propertySaleModalShow = ref(false);
 const formShowTypeOptions = ref<EnumResp[]>([]);
 
-const isNewUnit = (unitKeyId: string) => {
-  const find = oldUnitList.value.find((item) => item.unitKeyId === unitKeyId);
+const isNewUnit = (attrId: string) => {
+  const find = oldUnitList.value.find((item) => item.attrId === attrId);
   return !find;
 }
-const isNewGroup = (propertyGroupId: string) => {
-  const find = oldGroupList.value.find((item) => item.propertyGroupId === propertyGroupId);
+const isNewGroup = (groupId: string) => {
+  const find = oldGroupList.value.find((item) => item.groupId === groupId);
   return !find;
 }
-const isNewSale = (keyId: string) => {
-  const find = oldSaleList.value.find((item) => item.keyId === keyId);
+const isNewSale = (attrId: string) => {
+  const find = oldSaleList.value.find((item) => item.attrId === attrId);
   return !find;
 }
 
@@ -410,15 +410,15 @@ const propertyUnitModalOk = async () => {
   if (!keyIds || keyIds.length === 0) {
     Message.warning('没有选择属性数据！');
   } else {
-    const find = propertyUnitList.value.find((item) => item.unitKeyId === keyIds[0]);
+    const find = attrUnitList.value.find((item) => item.attrId === keyIds[0]);
     if (find) {
       Message.warning('属性已添加！');
     } else {
-      const params: PropertyUnitRecord = {
-        unitKeyId: keyIds[0] as string,
+      const params: AttrUnitRecord = {
+        attrId: keyIds[0] as string,
       };
-      const {data} = await queryPropertyUnitDetail(params);
-      propertyUnitList.value.push(data);
+      const {data} = await queryAttrUnitDetail(params);
+      attrUnitList.value.push(data);
     }
   }
   modalCancel();
@@ -430,16 +430,16 @@ const propertyGroupModalOk = async () => {
   if (!keyIds || keyIds.length === 0) {
     Message.warning('没有选择属性数据！');
   } else {
-    const find = propertyGroupList.value.find((item) => item.propertyGroupId === keyIds[0]);
+    const find = attrGroupList.value.find((item) => item.groupId === keyIds[0]);
     if (find) {
       Message.warning('属性已添加！');
     } else {
-      const params: PropertyGroupRecord = {
-        propertyGroupId: keyIds[0] as string,
+      const params: AttrGroupRecord = {
+        groupId: keyIds[0] as string,
       };
-      const {data} = await queryPropertyGroupDetail(params);
+      const {data} = await queryAttrGroupDetail(params);
       console.log(data)
-      propertyGroupList.value.push(data);
+      attrGroupList.value.push(data);
     }
   }
   modalCancel();
@@ -451,7 +451,7 @@ const propertySaleModalOk = async () => {
   if (!keyIds || keyIds.length === 0) {
     Message.warning('没有选择属性数据！');
   } else {
-    const find = propertySaleList.value.find((item) => item.keyId === keyIds[0]);
+    const find = attrSaleList.value.find((item) => item.attrId === keyIds[0]);
     if (find) {
       Message.warning('属性已添加！');
     } else {
@@ -507,9 +507,9 @@ const handleSubmit = async () => {
       params.categoryId = categoryId as string;
     }
 
-    params.propertyUnitIds = propertyUnitList.value.map((item) => item.unitKeyId || '');
-    params.propertyGroupIds = propertyGroupList.value.map((item) => item.propertyGroupId || '');
-    params.propertySaleIds = propertySaleList.value.map((item) => item.keyId || '');
+    params.propertyUnitIds = attrUnitList.value.map((item) => item.attrId || '');
+    params.propertyGroupIds = attrGroupList.value.map((item) => item.groupId || '');
+    params.propertySaleIds = attrSaleList.value.map((item) => item.attrId || '');
 
     if (action.value === '0') {
       console.log(action)
@@ -557,14 +557,14 @@ const init = async () => {
       const detailData = await queryBackendCategoryDetail(params);
       categoryDetail.value = detailData.data;
 
-      oldUnitList.value = JSON.parse(JSON.stringify(detailData.data.propertyUnitKeys));
-      propertyUnitList.value = detailData.data.propertyUnitKeys;
+      oldUnitList.value = JSON.parse(JSON.stringify(detailData.data.attrUnitRecords));
+      attrUnitList.value = detailData.data.attrUnitRecords;
 
-      oldGroupList.value = JSON.parse(JSON.stringify(detailData.data.propertyGroups));
-      propertyGroupList.value = detailData.data.propertyGroups;
+      oldGroupList.value = JSON.parse(JSON.stringify(detailData.data.attrGroupRecords));
+      attrGroupList.value = detailData.data.attrGroupRecords;
 
-      oldSaleList.value = JSON.parse(JSON.stringify(detailData.data.propertySaleKeys));
-      propertySaleList.value = detailData.data.propertySaleKeys;
+      oldSaleList.value = JSON.parse(JSON.stringify(detailData.data.attrSaleRecords));
+      attrSaleList.value = detailData.data.attrSaleRecords;
 
       const parentData = await queryParentCategoryDetail(params);
       parentCategoryDetails.value = parentData.data;
