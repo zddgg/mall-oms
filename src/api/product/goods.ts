@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {HttpResponse, PaginationRes} from '@/types/global';
-import {PropertySaleRecord} from "@/api/product/property";
+import {AttrSaleRecord} from "@/api/product/property";
 
 export interface SpuMetaRecord {
     id: string;
@@ -38,19 +38,19 @@ export function deleteBySpuId(params: SpuMetaRecord) {
 }
 
 export function queryAttrListBySpuId(params: { spuId: string }) {
-    return axios.post<HttpResponse<PropertySaleRecord[]>>(
+    return axios.post<HttpResponse<AttrSaleRecord[]>>(
         '/api/product/spu/queryAttrList', params
     );
 }
 
 export function addAttrSale(params: { spuId: string, attrId: string }) {
-    return axios.post<HttpResponse<PropertySaleRecord[]>>(
+    return axios.post<HttpResponse>(
         '/api/product/spu/addAttrSale', params
     );
 }
 
 export function deleteAttrSale(params: { spuId: string, attrId: string }) {
-    return axios.post<HttpResponse<PropertySaleRecord[]>>(
+    return axios.post<HttpResponse>(
         '/api/product/spu/deleteAttrSale', params
     );
 }
@@ -75,9 +75,23 @@ export function querySkuMetaList(params: SkuMetaParams) {
     );
 }
 
+export function querySkuDetail(params: SkuMetaRecord) {
+    return axios.post<HttpResponse<SkuMetaRecord>>('/api/product/sku/detail', params);
+}
+
 export function createSku(params: SkuMetaRecord) {
     return axios.post<HttpResponse>(
         '/api/product/sku/create', params
+    );
+}
+
+export function updateBySkuId(params: SkuMetaRecord) {
+    return axios.post<HttpResponse>('/api/product/sku/update', params);
+}
+
+export function deleteBySkuId(params: SkuMetaRecord) {
+    return axios.post<HttpResponse>(
+        '/api/product/sku/delete', params
     );
 }
 
@@ -109,7 +123,7 @@ export interface BaseInfoModel {
 
 export interface AttrInfoModel {
     attrSaleIds: string[];
-    spuAttrSaleDataList: PropertySaleRecord[];
+    spuAttrSaleDataList: AttrSaleRecord[];
 }
 
 export interface SkuInfoModel {

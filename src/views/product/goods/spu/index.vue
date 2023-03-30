@@ -11,17 +11,17 @@
           >
             <a-row :gutter="16">
               <a-col :span="8">
-                <a-form-item field="spuCode" label="SPU编号">
+                <a-form-item field="spuId" label="SPU编号">
                   <a-input
-                      v-model="searchFormModel.spuCode"
+                      v-model="searchFormModel.spuId"
                       placeholder="请输入SPU编号"
                   />
                 </a-form-item>
               </a-col>
               <a-col :span="8">
-                <a-form-item field="skuName" label="SKU名称">
+                <a-form-item field="spuName" label="SKU名称">
                   <a-input
-                      v-model="searchFormModel.skuName"
+                      v-model="searchFormModel.spuName"
                       placeholder="请输入SPU名称"
                   />
                 </a-form-item>
@@ -29,7 +29,7 @@
               <a-col :span="8">
                 <a-form-item field="brandCode" label="品牌">
                   <a-select
-                      v-model="searchFormModel.brandCode"
+                      v-model="searchFormModel.brandId"
                       :options="brandTypeOptions"
                       placeholder="请选择品牌"
                   />
@@ -38,7 +38,7 @@
               <a-col :span="8">
                 <a-form-item field="categoryCode" label="类目">
                   <a-select
-                      v-model="searchFormModel.categoryCode"
+                      v-model="searchFormModel.categoryId"
                       :options="categoryTypeOptions"
                       placeholder="请选择类目"
                   />
@@ -47,7 +47,7 @@
               <a-col :span="8">
                 <a-form-item field="status" label="状态">
                   <a-select
-                      v-model="searchFormModel.status"
+                      v-model="searchFormModel.statusFlag"
                       :options="statusOptions"
                       placeholder="全部"
                   />
@@ -275,7 +275,8 @@ const deleteSpu = (record: TableData) => {
       const params = {
         spuId: record.spuId,
       } as SpuMetaRecord;
-      await deleteBySpuId(params);
+      const {msg} = await deleteBySpuId(params);
+        console.log(msg)
       await fetchData();
     },
   });

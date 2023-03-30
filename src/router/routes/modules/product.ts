@@ -64,7 +64,7 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'sku/create',
           name: 'SkuCreate',
-          component: () => import('@/views/product/goods/sku/detail/skuCreate.vue'),
+          component: () => import('@/views/product/goods/sku/components/create.vue'),
           meta: {
             requiresAuth: true,
             roles: ['*'],
@@ -74,7 +74,7 @@ const LIST: AppRouteRecordRaw = {
         {
           path: 'sku/:skuId',
           name: 'SkuDetail',
-          component: () => import('@/views/product/goods/sku/detail/skuDetail.vue'),
+          component: () => import('@/views/product/goods/sku/components/detail.vue'),
           meta: {
             requiresAuth: true,
             roles: ['*'],
