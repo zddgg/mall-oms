@@ -116,22 +116,22 @@ const init = () => {
   let arr: AttrFlatMapItem[][] = [];
   spuAttrSaleData?.forEach((item) => {
     let arr1: AttrFlatMapItem[] = [];
-    item.propertySaleValues?.forEach((subItem) => {
+    item.attrSaleValues?.forEach((subItem) => {
       const attrItem = {
-        attrId: item.keyId,
-        attrName: item.keyName,
-        attrValueId: subItem.valueId,
-        attrValueName: subItem.valueName
+        attrId: item.attrId,
+        attrName: item.attrName,
+        attrValueId: subItem.attrValueId,
+        attrValueName: subItem.attrValueName
       }
       arr1.push(attrItem)
     })
     arr.push(arr1)
     columns.value.splice(columns.value.length - 1, 0,
         {
-          title: item.keyName,
-          dataIndex: item.keyId,
+          title: item.attrName,
+          dataIndex: item.attrId,
           render: (data: { record: TableData; column: TableColumnData; rowIndex: number; }) => {
-            return data.record[item.keyId as string].attrValueName;
+            return data.record[item.attrId as string].attrValueName;
           }
         }
     )
@@ -141,6 +141,7 @@ const init = () => {
     const sku: SkuItem = {
       skuName: goodsCreateData.value?.spuName + ' ' + item.map((subItem) => subItem.attrValueName).join(' '),
       attrList: item,
+      retailPrice: 0,
     }
     item.forEach((subItem) => {
       sku[subItem.attrId as string] = subItem;

@@ -141,7 +141,7 @@
                 <div>
                   <span>{{ record.attrId }}</span>
                 </div>
-                <div v-if="isNewUnit(record.unitKeyId)" style="margin-left: 10px">
+                <div v-if="isNewUnit(record.attrId)" style="margin-left: 10px">
                   <a-tag color="#165dff">新添加</a-tag>
                 </div>
               </div>

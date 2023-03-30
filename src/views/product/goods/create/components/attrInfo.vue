@@ -35,10 +35,10 @@
           <a-table :data="formData.spuAttrSaleDataList"
                    :columns="categoryAttrSaleColumns"
           >
-            <template #propertySaleValues="{record}">
+            <template #attrSaleValues="{record}">
               <a-space>
-                <a-tag v-for="(item, index) in record.propertySaleValues" :key="index">
-                  {{ item.valueName }}
+                <a-tag v-for="(item, index) in record.attrSaleValues" :key="index">
+                  {{ item.attrValueName }}
                 </a-tag>
               </a-space>
             </template>
@@ -77,12 +77,12 @@
 <script lang="ts" setup>
 import {computed, PropType, ref} from "vue";
 import {FormInstance} from "@arco-design/web-vue/es/form";
-import {PropertySaleRecord, queryPropertySaleDetail} from "@/api/product/property";
 import {TableColumnData, TableData} from "@arco-design/web-vue/es/table/interface";
 import {queryAttrSaleListByCategoryId} from "@/api/product/category";
 import {GoodsCreateModal} from "@/api/product/goods";
 import {Message} from "@arco-design/web-vue";
-import PropertySaleTable from "@/views/product/property/components/propertySaleTable.vue";
+import PropertySaleTable from "@/views/product/attr/components/propertySaleTable.vue";
+import {AttrSaleRecord, queryAttrSaleDetail} from "@/api/product/property";
 
 const props = defineProps({
   data: Object as PropType<GoodsCreateModal>
@@ -95,21 +95,21 @@ const propertySaleModalShow = ref(false);
 const propertySaleTableRef = ref({
   selectedKeysHandler: () => [],
 })
-const categoryAttrSaleData = ref<PropertySaleRecord[]>([])
+const categoryAttrSaleData = ref<AttrSaleRecord[]>([])
 
 const categoryAttrSaleColumns = computed<TableColumnData[]>(() => [
   {
     title: '属性编号',
-    dataIndex: 'keyId',
+    dataIndex: 'attrId',
   },
   {
     title: '属性名称',
-    dataIndex: 'keyName',
+    dataIndex: 'attrName',
   },
   {
     title: '属性值',
-    dataIndex: 'propertySaleValues',
-    slotName: 'propertySaleValues',
+    dataIndex: 'attrSaleValues',
+    slotName: 'attrSaleValues',
   },
   {
     title: '操作',
@@ -125,14 +125,14 @@ const propertySaleModalOk = async () => {
     Message.error('没有选择属性数据！');
   } else {
     for (const keyId of keyIds) {
-      const find = formData.value.spuAttrSaleDataList?.find((item) => item.keyId === keyId);
+      const find = formData.value.spuAttrSaleDataList?.find((item) => item.attrId === keyId);
       if (find) {
-        Message.error(`属性[${find.keyName}]已添加！`);
+        Message.error(`属性[${find.attrId}]已添加！`);
       } else {
         const params = {
-          keyId: keyId as string,
+          attrId: keyId as string,
         };
-        const {data} = await queryPropertySaleDetail(params);
+        const {data} = await queryAttrSaleDetail(params);
         bindAttrToSpu(data);
       }
     }
@@ -157,7 +157,7 @@ const goPrev = () => {
 };
 
 const attrSaleIsBind = computed(() => (record: TableData) => { //计算属性传递参数
-  const find = formData.value.spuAttrSaleDataList?.find((item) => item.keyId === record.keyId);
+  const find = formData.value.spuAttrSaleDataList?.find((item) => item.attrId === record.keyId);
   return !!find;
 })
 
@@ -168,7 +168,7 @@ const bindAttrToSpu = (record: TableData) => {
   if (!formData.value.attrSaleIds) {
     formData.value.attrSaleIds = [];
   }
-  formData.value.spuAttrSaleDataList.push(record as PropertySaleRecord)
+  formData.value.spuAttrSaleDataList.push(record as AttrSaleRecord)
   formData.value.attrSaleIds.push(record.keyId)
 }
 
