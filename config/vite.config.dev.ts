@@ -20,6 +20,10 @@ export default mergeConfig(
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/file/, ''),
         },
+        '/oms': {
+          target: 'http://localhost:8082/',
+          changeOrigin: true,
+        },
       },
     },
   },

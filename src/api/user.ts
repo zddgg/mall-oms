@@ -1,27 +1,47 @@
 import axios from 'axios';
 import type { RouteRecordNormalized } from 'vue-router';
-import { UserState } from '@/store/modules/user/types';
+import {HttpResponse} from "@/types/global";
+import {RoleType} from "@/types/role";
 
 export interface LoginData {
   username: string;
   password: string;
 }
 
+export interface UserInfo {
+  name?: string;
+  avatar?: string;
+  job?: string;
+  organization?: string;
+  location?: string;
+  email?: string;
+  introduction?: string;
+  personalWebsite?: string;
+  jobName?: string;
+  organizationName?: string;
+  locationName?: string;
+  phone?: string;
+  registrationDate?: string;
+  accountId?: string;
+  certification?: number;
+  role: RoleType;
+}
+
 export interface LoginRes {
   token: string;
 }
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/user/login', data);
+  return axios.post<HttpResponse<LoginRes>>('/oms/user/login', data);
 }
 
 export function logout() {
-  return axios.post<LoginRes>('/api/user/logout');
+  return axios.post<HttpResponse<LoginRes>>('/oms/user/logout');
 }
 
 export function getUserInfo() {
-  return axios.post<UserState>('/api/user/info');
+  return axios.post<HttpResponse<UserInfo>>('/oms/user/info');
 }
 
 export function getMenuList() {
-  return axios.post<RouteRecordNormalized[]>('/api/user/menu');
+  return axios.post<HttpResponse<RouteRecordNormalized[]>>('/oms/user/menu');
 }
