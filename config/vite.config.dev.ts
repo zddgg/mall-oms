@@ -11,14 +11,19 @@ export default mergeConfig(
       },
       proxy: {
         '/api': {
-          target: 'http://localhost:8080/',
+          target: 'http://localhost:7001/',
           changeOrigin: true,
-          rewrite: (path: string) => path.replace(/^\/api/, ''),
+          rewrite: (path: string) => path.replace(/^\/api/, '/api/product/'),
         },
         '/file': {
-          target: 'http://localhost:8081/',
+          target: 'http://localhost:7001/',
           changeOrigin: true,
-          rewrite: (path: string) => path.replace(/^\/file/, ''),
+          rewrite: (path: string) => path.replace(/^\/file/, '/api/file/'),
+        },
+        '/oms': {
+          target: 'http://localhost:7001/',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/oms/, '/api/oms/'),
         },
       },
     },
