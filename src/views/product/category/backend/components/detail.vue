@@ -53,7 +53,7 @@
                   label="是否关联属性"
                   show-colon
               >
-                <a-switch v-model="categoryDetail.relatedProperty">
+                <a-switch v-model="categoryDetail.relatedAttr">
                   <template #checked> 是</template>
                   <template #unchecked> 否</template>
                 </a-switch>
@@ -87,19 +87,19 @@
                 <a-tabs default-active-key="1" type="rounded">
                   <a-tab-pane key="1" title="属性单元">
                     <a-table :columns="propertyUnitColumns"
-                             :data="item.propertyUnitKeys"
+                             :data="item.attrUnitRecords"
                     >
                     </a-table>
                   </a-tab-pane>
                   <a-tab-pane key="2" title="属性组">
                     <a-table :columns="propertyGroupColumns"
-                             :data="item.propertyGroups"
+                             :data="item.attrGroupRecords"
                     >
                     </a-table>
                   </a-tab-pane>
                   <a-tab-pane key="3" title="销售属性">
                     <a-table :columns="propertySaleColumns"
-                             :data="item.propertySaleKeys"
+                             :data="item.attrSaleRecords"
                     >
                       <template #propertySaleValues="{record}">
                         <a-space>
