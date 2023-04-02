@@ -352,9 +352,9 @@ import {
   queryAttrGroupDetail,
   queryAttrUnitDetail,
 } from "@/api/product/property";
-import PropertyUnitTable from "@/views/product/property/components/propertyUnitTable.vue";
-import PropertyGroupTable from "@/views/product/property/components/propertyGroupTable.vue";
-import PropertySaleTable from "@/views/product/property/components/propertySaleTable.vue";
+import PropertyUnitTable from "@/views/product/attr/components/propertyUnitTable.vue";
+import PropertyGroupTable from "@/views/product/attr/components/propertyGroupTable.vue";
+import PropertySaleTable from "@/views/product/attr/components/propertySaleTable.vue";
 import {EnumResp, queryEnum} from "@/api/common/enum";
 
 const router = useRouter();
